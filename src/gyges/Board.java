@@ -37,4 +37,8 @@ public class Board {
     public Piece getPieceAt(Position position) {
         return grid[position.getX()][position.getY()];
     }
+
+    public boolean isWithinBounds(Position newPosition) {
+
+    }
 }
