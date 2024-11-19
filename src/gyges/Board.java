@@ -2,9 +2,16 @@ package gyges;
 
 public class Board {
     private Piece[][] grid;
+    private int size;
+
     public Board(int size) {
         /* Initialize grid of given size */
         grid = new Piece[size][size];
+        this.size = size;
+    }
+
+    public int getSize() {
+        return size;
     }
 
     public void placePiece(Piece piece, Position position) {
@@ -39,6 +46,16 @@ public class Board {
     }
 
     public boolean isWithinBounds(Position newPosition) {
+        int x = newPosition.getX();
+        int y = newPosition.getY();
+        return x >= 0 && x < grid.length && y >= 0 && y < grid[0].length;
+    }
 
+    public void clearBoard() {
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[0].length; j++) {
+                grid[i][j] = null;
+            }
+        }
     }
 }

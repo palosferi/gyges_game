@@ -3,7 +3,9 @@ package gyges;
 public abstract class Piece {
     private Position position;
     private Player player;
+
     public abstract int getMoveDistance();
+
     public void move(Position newPosition, Board board) {
         int distance = calculateDistance(newPosition);
         // Validate move distance
@@ -14,9 +16,12 @@ public abstract class Piece {
             position = newPosition;
         }
     }
+
     private int calculateDistance(Position newPosition) {
-        return position.getX() - newPosition.getX() + position.getY() - newPosition.getY();
+        return Math.abs(position.getX() - newPosition.getX()) + Math.abs(position.getY() - newPosition.getY());
     }
+
     public Position getPosition() {return position;}
+
     public Player getPlayer() {return player;}
 }
