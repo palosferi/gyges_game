@@ -4,24 +4,28 @@ public abstract class Piece {
     private Position position;
     private Player player;
 
-    public abstract int getMoveDistance();
+    public Piece(Player player) {
+        this.player = player;
+    }
+
+    public abstract int getValue();
+
+    public abstract Piece copy();
 
     public void move(Position newPosition, Board board) {
-        int distance = calculateDistance(newPosition);
-        // Validate move distance
-        if (distance == getMoveDistance() && board.isPositionEmpty(newPosition)) {
-            // Update the board first
-            board.updatePiecePosition(this, newPosition);
-            // Update the piece's position
-            position = newPosition;
-        }
+        position = newPosition;
+        board.updatePiecePosition(this, newPosition);
     }
 
-    private int calculateDistance(Position newPosition) {
-        return Math.abs(position.getX() - newPosition.getX()) + Math.abs(position.getY() - newPosition.getY());
+    public Position getPosition() {
+        return position;
     }
 
-    public Position getPosition() {return position;}
+    public Player getPlayer() {
+        return player;
+    }
 
-    public Player getPlayer() {return player;}
+    public void setPosition(Position newPosition) {
+        position = newPosition;
+    }
 }

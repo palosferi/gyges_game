@@ -3,41 +3,51 @@ package gyges;
 import gyges.enums.PlayerType;
 
 public class Game {
-    protected Player player1, player2;
-    protected GameLogic gameLogic;
+    private Board board;
+    private Player playerOne;
+    private Player playerTwo;
     private Player currentPlayer;
+    private GameLogic gameLogic;
 
     public Game() {
+        this.board = new Board(); // 6x7 board to allow for the winning move
+        this.playerOne = new Player(PlayerType.PLAYER_ONE);
+        this.playerTwo = new Player(PlayerType.PLAYER_TWO);
         this.gameLogic = new GameLogic();
-        gameLogic.board = new Board(6); // Gyges is typically played on a 6x6 board
-        this.player1 = new Player(PlayerType.PLAYER_ONE);
-        this.player2 = new Player(PlayerType.PLAYER_TWO);
+        this.currentPlayer = playerOne;
     }
 
     public void startNewGame() {
-        gameLogic.initializeGame(player1);
-        currentPlayer = player1;
-        System.out.println("New game started. Player 1 goes first.");
+        board.clear();
+        setupInitialPieces();
+        currentPlayer = playerOne;
     }
 
-    public void takeTurn(Piece piece, Position newPosition) {
-        if (gameLogic.isValidMove(piece, newPosition)) {
-            gameLogic.makeMove(piece, newPosition);
-            System.out.println(currentPlayer.getType() + " moved " + piece + " to " + newPosition);
+    private void setupInitialPieces() {
+        // Implement the initial setup logic here
+        // Allow players to place pieces alternately or use the alternative setup
+    }
 
-            if (gameLogic.isGameOver()) {
-                System.out.println("Game over! " + getWinner().getType() + " wins!");
-            } else {
-                switchPlayer();
-                System.out.println("It's now " + currentPlayer.getType() + "'s turn.");
-            }
-        } else {
+    public boolean takeTurn(Position from, Position to) {
+        if (!gameLogic.isValidMove(board, currentPlayer, from, to)) {
             System.out.println("Invalid move. Try again.");
+            return false;
         }
+
+        Move move = gameLogic.executeMove(board, from, to);
+        if (gameLogic.isWinningMove(board, move, currentPlayer)) {
+            if (!gameLogic.canOpponentPrevent(board, move, currentPlayer)) {
+                System.out.println("Game over! " + currentPlayer.getType() + " wins!");
+                return true;
+            }
+        }
+
+        switchPlayer();
+        return false;
     }
 
     private void switchPlayer() {
-        currentPlayer = (currentPlayer == player1) ? player2 : player1;
+        currentPlayer = (currentPlayer == playerOne) ? playerTwo : playerOne;
     }
 
     public Player getCurrentPlayer() {
@@ -45,14 +55,30 @@ public class Game {
     }
 
     public Player getWinner() {
-        if (!gameLogic.isGameOver()) {
+        if (!gameLogic.isGameOver(board)) {
             return null;
         }
-        // Assuming the last player to make a move is the winner
-        return (currentPlayer == player1) ? player2 : player1;
+
+        // Check if Player One has a piece in the bottom row
+        for (int col = 0; col < board.getSize(); col++) {
+            Piece piece = board.getPieceAt(new Position(0, col)); // Top row
+            if (piece != null && piece.getPlayer().getType() == PlayerType.PLAYER_ONE) {
+                return playerOne;
+            }
+        }
+
+        // Check if Player Two has a piece in the top row
+        for (int col = 0; col < board.getSize(); col++) {
+            Piece piece = board.getPieceAt(new Position(board.getSize() - 1, col)); // Bottom row
+            if (piece != null && piece.getPlayer().getType() == PlayerType.PLAYER_TWO) {
+                return playerTwo;
+            }
+        }
+
+        return null; // Fallback, though this case shouldn't happen
     }
 
     public Board getBoard() {
-        return gameLogic.board;
+        return board;
     }
 }

@@ -15,12 +15,33 @@ public class ConsoleUI {
 
     public void start() {
         game.startNewGame();
-        while (!game.gameLogic.isGameOver()) {
+        setupInitialPieces();
+
+        boolean gameOver = false;
+        while (!gameOver) {
             displayBoard();
-            makeMove();
+            gameOver = makeMove();
         }
         displayBoard();
         announceWinner();
+    }
+
+    private void setupInitialPieces() {
+        // Implement logic for players to place their pieces
+    }
+
+    private boolean makeMove() {
+        Player currentPlayer = game.getCurrentPlayer();
+        System.out.println(currentPlayer.getType() + "'s turn");
+
+        Position from = getPositionInput("Enter the position of the piece to move (row column): ");
+        Position to = getPositionInput("Enter the position to move to (row column): ");
+
+        boolean moveMade = game.takeTurn(from, to);
+        if (!moveMade) {
+            System.out.println("Invalid move. Try again.");
+        }
+        return moveMade;
     }
 
     private void displayBoard() {
@@ -32,9 +53,9 @@ public class ConsoleUI {
                 if (piece == null) {
                     System.out.print("- ");
                 } else if (piece.getPlayer().getType() == PlayerType.PLAYER_ONE) {
-                    System.out.print("X ");
+                    System.out.print(getPieceSymbol(piece) + " ");
                 } else {
-                    System.out.print("O ");
+                    System.out.print(getPieceSymbol(piece).toLowerCase() + " ");
                 }
             }
             System.out.println();
@@ -42,24 +63,11 @@ public class ConsoleUI {
         System.out.println();
     }
 
-    private void makeMove() {
-        Player currentPlayer = game.getCurrentPlayer();
-        System.out.println(currentPlayer.getType() + "'s turn");
-        
-        Position from = getPositionInput("Enter the position of the piece to move (row column): ");
-        Position to = getPositionInput("Enter the position to move to (row column): ");
-        
-        Piece piece = game.getBoard().getPieceAt(from);
-        if (piece == null || piece.getPlayer() != currentPlayer) {
-            System.out.println("Invalid piece selection. Try again.");
-            return;
-        }
-        
-        try {
-            game.takeTurn(piece, to);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Invalid move. Try again.");
-        }
+    private String getPieceSymbol(Piece piece) {
+        if (piece instanceof Piece1) return "A";
+        if (piece instanceof Piece2) return "B";
+        if (piece instanceof Piece3) return "C";
+        return "?";
     }
 
     private Position getPositionInput(String prompt) {

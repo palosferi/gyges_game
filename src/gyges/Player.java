@@ -15,4 +15,8 @@ public class Player {
     public PlayerType getType() {
         return type;
     }
+
+    public List<Piece> getPieces() {
+        return pieces;
+    }
 }

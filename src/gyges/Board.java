@@ -1,25 +1,23 @@
 package gyges;
 
 public class Board {
+    private static final int BOARD_SIZE = 6;
     private Piece[][] grid;
-    private int size;
 
-    public Board(int size) {
-        /* Initialize grid of given size */
-        grid = new Piece[size][size];
-        this.size = size;
+    public Board() {
+        this.grid = new Piece[BOARD_SIZE][BOARD_SIZE];
     }
 
     public int getSize() {
-        return size;
+        return BOARD_SIZE;
     }
 
-    public void placePiece(Piece piece, Position position) {
-        if (isPositionEmpty(position)) {
-            grid[position.getX()][position.getY()] = piece;
+    public void movePiece(Position from, Position to) {
+        if (isPositionEmpty(to)) {
+            grid[to.getX()][to.getY()] = grid[from.getX()][from.getY()];
 
             // Update the piece's internal position
-            piece.move(position, this);
+            grid[to.getX()][to.getY()].move(to, this);
         } else {
             System.out.println("Position is already occupied!");
         }
@@ -46,16 +44,31 @@ public class Board {
     }
 
     public boolean isWithinBounds(Position newPosition) {
-        int x = newPosition.getX();
-        int y = newPosition.getY();
-        return x >= 0 && x < grid.length && y >= 0 && y < grid[0].length;
+        return newPosition.getX() >= 0 && newPosition.getX() < grid.length &&
+               newPosition.getY() >= 0 && newPosition.getY() < grid[0].length;
     }
 
-    public void clearBoard() {
+    private String createEdgeIdentifier(Position from, Position to) {
+        return from.getX() + "," + from.getY() + "->" + to.getX() + "," + to.getY();
+    }
+
+    public void clear() {
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[0].length; j++) {
                 grid[i][j] = null;
             }
         }
+    }
+
+    public Board copy() {
+        Board clonedBoard = new Board();
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[0].length; j++) {
+                if (grid[i][j]!= null) {
+                    clonedBoard.updatePiecePosition(grid[i][j].copy(), new Position(i, j));
+                }
+            }
+        }
+        return clonedBoard;
     }
 }
