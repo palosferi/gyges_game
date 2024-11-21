@@ -1,13 +1,17 @@
 package gyges;
 
 import gyges.enums.PlayerType;
+import com.google.gson.annotations.Expose;
 
-public class Game {
-    private Board board;
+import java.io.Serializable;
+
+public class Game implements Serializable {
+    @Expose private Board board;
+    @Expose private Player currentPlayer;
+    @Expose private GameLogic gameLogic;
     private Player playerOne;
     private Player playerTwo;
-    private Player currentPlayer;
-    private GameLogic gameLogic;
+    private SetupPhase setupPhase;
 
     public Game() {
         this.board = new Board(); // 6x7 board to allow for the winning move
@@ -15,17 +19,13 @@ public class Game {
         this.playerTwo = new Player(PlayerType.PLAYER_TWO);
         this.gameLogic = new GameLogic();
         this.currentPlayer = playerOne;
+        this.setupPhase = new SetupPhase(board, playerOne, playerTwo);
     }
 
     public void startNewGame() {
         board.clear();
-        setupInitialPieces();
+        setupPhase.start();
         currentPlayer = playerOne;
-    }
-
-    private void setupInitialPieces() {
-        // Implement the initial setup logic here
-        // Allow players to place pieces alternately or use the alternative setup
     }
 
     public boolean takeTurn(Position from, Position to) {
@@ -39,6 +39,10 @@ public class Game {
             if (!gameLogic.canOpponentPrevent(board, move, currentPlayer)) {
                 System.out.println("Game over! " + currentPlayer.getType() + " wins!");
                 return true;
+            } else {
+                System.out.println("This move can be prevented. Try another move.");
+                gameLogic.undoMove(board, move);
+                return false;
             }
         }
 
@@ -81,4 +85,30 @@ public class Game {
     public Board getBoard() {
         return board;
     }
+
+    public void copyFrom(Game other) {
+        if (other == null) {
+            throw new IllegalArgumentException("Cannot copy from a null Game object.");
+        }
+
+        // Copy the board
+        this.board = other.board.copy();
+
+        // Copy players
+        this.playerOne = new Player(other.playerOne.getType());
+        this.playerOne.setPieces(other.playerOne.getPieces());
+
+        this.playerTwo = new Player(other.playerTwo.getType());
+        this.playerTwo.setPieces(other.playerTwo.getPieces());
+
+        // Copy current player reference
+        this.currentPlayer = (other.currentPlayer.getType() == PlayerType.PLAYER_ONE) ? this.playerOne : this.playerTwo;
+
+        // Copy game logic (if any additional logic needs to be reset, do so here)
+        this.gameLogic = new GameLogic();
+
+        // Copy setup phase if needed (optional, depending on game design)
+        this.setupPhase = new SetupPhase(this.board, this.playerOne, this.playerTwo);
+    }
+
 }

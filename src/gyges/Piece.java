@@ -14,7 +14,7 @@ public abstract class Piece {
 
     public void move(Position newPosition, Board board) {
         position = newPosition;
-        board.updatePiecePosition(this, newPosition);
+        board.placePiece(this, newPosition);
     }
 
     public Position getPosition() {

@@ -2,60 +2,86 @@ package gyges;
 
 import gyges.enums.PlayerType;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 public class GameLogic {
 
     public boolean isValidMove(Board board, Player player, Position from, Position to) {
         Piece piece = board.getPieceAt(from);
-        if (piece == null || !player.getPieces().contains(piece)) {
-            return false; // No piece at the position or not owned by the player
+        if (piece == null || !player.getPieces().contains(piece) || !isInActiveRow(player, from)) {
+            return false; // No piece at the position or not owned by the player or not in the active row
         }
-
-        int requiredDistance = piece.getValue();
-        int calculatedDistance = calculateDistance(from, to);
-
-        // Check if the exact distance is covered
-        if (requiredDistance != calculatedDistance) {
-            return false;
-        }
-
         // Check path validity
         return isPathValid(board, from, to, piece);
     }
 
     private boolean isPathValid(Board board, Position from, Position to, Piece piece) {
+        int remainingMoves = piece.getValue();
         Position current = from;
-        int distanceCovered = 0;
 
-        // Simulate path traversal
-        while (!current.equals(to)) {
-            Position nextStep = getNextStep(current, to);
-            distanceCovered++;
+        while (remainingMoves > 0) {
+            // Get all possible next positions
+            List<Position> nextPositions = getValidAdjacentPositions(board, current);
 
-            if (!board.isWithinBounds(nextStep)) {
-                return false; // Out of bounds
+            // If we've reached the destination, the move is valid
+            if (nextPositions.contains(to)) {
+                return true;
+            }
+
+            // Find the next position that's closest to the destination
+            Position nextStep = getClosestPosition(nextPositions, to);
+
+            if (nextStep == null) {
+                // No valid next step, path is blocked
+                return false;
             }
 
             Piece occupyingPiece = board.getPieceAt(nextStep);
-            if (occupyingPiece != null && !current.equals(from)) {
-                // Handle jump logic if landing on an occupied square
-                distanceCovered += occupyingPiece.getValue();
-            }
-
-            current = nextStep;
-
-            // Ensure we don't exceed the allowed distance
-            if (distanceCovered > piece.getValue()) {
-                return false;
+            if (occupyingPiece != null) {
+                // Handle jump logic
+                remainingMoves -= occupyingPiece.getValue();
+                if (remainingMoves < 0) {
+                    return false; // Can't jump over this piece
+                }
+                // Update current position to the space after the jumped piece
+                current = getPositionAfterJump(current, nextStep);
+            } else {
+                // Regular move
+                current = nextStep;
+                remainingMoves--;
             }
         }
 
-        return true;
+        // If we've used all moves and haven't reached the destination, it's not a valid path
+        return false;
     }
 
-    private Position getNextStep(Position current, Position destination) {
-        int dx = Integer.compare(destination.getX(), current.getX());
-        int dy = Integer.compare(destination.getY(), current.getY());
-        return new Position(current.getX() + dx, current.getY() + dy);
+    private List<Position> getValidAdjacentPositions(Board board, Position position) {
+        List<Position> adjacentPositions = new ArrayList<>();
+        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // Up, Down, Left, Right
+
+        for (int[] direction : directions) {
+            Position newPosition = new Position(position.getX() + direction[0], position.getY() + direction[1]);
+            if (board.isWithinBounds(newPosition)) {
+                adjacentPositions.add(newPosition);
+            }
+        }
+
+        return adjacentPositions;
+    }
+
+    private Position getClosestPosition(List<Position> positions, Position target) {
+        return positions.stream()
+                .min(Comparator.comparingInt(p -> calculateDistance(p, target)))
+                .orElse(null);
+    }
+
+    private Position getPositionAfterJump(Position current, Position jumped) {
+        int dx = jumped.getX() - current.getX();
+        int dy = jumped.getY() - current.getY();
+        return new Position(jumped.getX() + dx, jumped.getY() + dy);
     }
 
     public Move executeMove(Board board, Position from, Position to) {
@@ -135,9 +161,8 @@ public class GameLogic {
 
     private boolean isInActiveRow(Player player, Position position) {
         for(Piece piece : player.getPieces()) {
-            if (player.getType()==PlayerType.PLAYER_ONE && piece.getPosition().getY() < position.getY()) {
-                return false;
-            } else if (player.getType()==PlayerType.PLAYER_TWO && piece.getPosition().getY() > position.getY()) {
+            if ((player.getType()==PlayerType.PLAYER_ONE && piece.getPosition().getY() < position.getY()) ||
+                    (player.getType()==PlayerType.PLAYER_TWO && piece.getPosition().getY() > position.getY())) {
                 return false;
             }
         }
@@ -167,5 +192,15 @@ public class GameLogic {
         }
 
         return false; // Game is not over
+    }
+
+    public void undoMove(Board board, Move move) {
+        // Move the piece back to its original position
+        board.movePiece(move.getTo(), move.getFrom());
+
+        // If a piece was displaced, put it back
+        if (move.getDisplacedPiece() != null) {
+            board.placePiece(move.getDisplacedPiece(), move.getTo());
+        }
     }
 }

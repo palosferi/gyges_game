@@ -1,8 +1,11 @@
 package gyges;
 
+import gyges.gui.MainFrame;
+
+import javax.swing.*;
+
 public class Main {
     public static void main(String[] args) {
-        ConsoleUI ui = new ConsoleUI();
-        ui.start();
+        SwingUtilities.invokeLater(() -> new MainFrame(new Game()));
     }
 }

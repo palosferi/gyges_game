@@ -16,7 +16,16 @@ public class Move {
     public Position getFrom() {
         return from;
     }
+
     public Position getTo() {
         return to;
+    }
+
+    public Piece getMovingPiece() {
+        return movingPiece;
+    }
+
+    public Piece getDisplacedPiece() {
+        return displacedPiece;
     }
 }

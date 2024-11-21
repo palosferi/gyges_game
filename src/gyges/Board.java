@@ -23,7 +23,7 @@ public class Board {
         }
     }
 
-    public void updatePiecePosition(Piece piece, Position newPosition) {
+    public void placePiece(Piece piece, Position newPosition) {
         Position oldPosition = piece.getPosition();
 
         // Clear old position on the grid
@@ -65,7 +65,7 @@ public class Board {
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[0].length; j++) {
                 if (grid[i][j]!= null) {
-                    clonedBoard.updatePiecePosition(grid[i][j].copy(), new Position(i, j));
+                    clonedBoard.placePiece(grid[i][j].copy(), new Position(i, j));
                 }
             }
         }

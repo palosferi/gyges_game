@@ -15,7 +15,6 @@ public class ConsoleUI {
 
     public void start() {
         game.startNewGame();
-        setupInitialPieces();
 
         boolean gameOver = false;
         while (!gameOver) {
@@ -24,10 +23,6 @@ public class ConsoleUI {
         }
         displayBoard();
         announceWinner();
-    }
-
-    private void setupInitialPieces() {
-        // Implement logic for players to place their pieces
     }
 
     private boolean makeMove() {
