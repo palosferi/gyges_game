@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Player {
     private List<Piece> pieces;
-    private PlayerType type;
+    private final PlayerType type;
 
     public Player(PlayerType type) {
         this.type = type;

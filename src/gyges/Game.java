@@ -1,114 +1,111 @@
 package gyges;
 
 import gyges.enums.PlayerType;
-import com.google.gson.annotations.Expose;
+import gyges.enums.GamePhase;
 
-import java.io.Serializable;
-
-public class Game implements Serializable {
-    @Expose private Board board;
-    @Expose private Player currentPlayer;
-    @Expose private GameLogic gameLogic;
+public class Game {
+    private Board board;
     private Player playerOne;
     private Player playerTwo;
-    private SetupPhase setupPhase;
+    private Player currentPlayer;
+    private boolean gameOver;
+    private Player winner;
+    private GamePhase currentPhase;
 
     public Game() {
-        this.board = new Board(); // 6x7 board to allow for the winning move
-        this.playerOne = new Player(PlayerType.PLAYER_ONE);
-        this.playerTwo = new Player(PlayerType.PLAYER_TWO);
-        this.gameLogic = new GameLogic();
-        this.currentPlayer = playerOne;
-        this.setupPhase = new SetupPhase(board, playerOne, playerTwo);
+        startNewGame();
     }
 
     public void startNewGame() {
-        board.clear();
-        setupPhase.start();
+        board = new Board();
+        playerOne = new Player(PlayerType.PLAYER_ONE);
+        playerTwo = new Player(PlayerType.PLAYER_TWO);
         currentPlayer = playerOne;
+        gameOver = false;
+        winner = null;
+        currentPhase = GamePhase.SETUP;
     }
 
-    public boolean takeTurn(Position from, Position to) {
-        if (!gameLogic.isValidMove(board, currentPlayer, from, to)) {
-            System.out.println("Invalid move. Try again.");
+    public boolean placePiece(Position position, int pieceType) {
+        if (currentPhase != GamePhase.SETUP) {
             return false;
         }
 
-        Move move = gameLogic.executeMove(board, from, to);
-        if (gameLogic.isWinningMove(board, move, currentPlayer)) {
-            if (!gameLogic.canOpponentPrevent(board, move, currentPlayer)) {
-                System.out.println("Game over! " + currentPlayer.getType() + " wins!");
-                return true;
-            } else {
-                System.out.println("This move can be prevented. Try another move.");
-                gameLogic.undoMove(board, move);
-                return false;
-            }
+        Piece piece = createPiece(pieceType);
+        if (piece == null) {
+            return false;
         }
 
-        switchPlayer();
-        return false;
+        boolean placed = board.placePiece(piece, position);
+        if (placed) {
+            if (board.isSetupComplete()) {
+                currentPhase = GamePhase.PLAY;
+            } else {
+                switchPlayer();
+            }
+        }
+        return placed;
+    }
+
+    private Piece createPiece(int pieceType) {
+        return switch (pieceType) {
+            case 1 -> new Piece1(currentPlayer);
+            case 2 -> new Piece2(currentPlayer);
+            case 3 -> new Piece3(currentPlayer);
+            default -> null;
+        };
+    }
+
+    public boolean movePiece(Position from, Position to) {
+        if (currentPhase != GamePhase.PLAY) {
+            return false;
+        }
+
+        boolean moved = board.movePiece(from, to);
+        if (moved) {
+            if (GameLogic.isGameOver(board)) {
+                gameOver = true;
+                winner = currentPlayer;
+            } else {
+                switchPlayer();
+            }
+        }
+        return moved;
     }
 
     private void switchPlayer() {
-        currentPlayer = (currentPlayer == playerOne) ? playerTwo : playerOne;
-    }
-
-    public Player getCurrentPlayer() {
-        return currentPlayer;
-    }
-
-    public Player getWinner() {
-        if (!gameLogic.isGameOver(board)) {
-            return null;
-        }
-
-        // Check if Player One has a piece in the bottom row
-        for (int col = 0; col < board.getSize(); col++) {
-            Piece piece = board.getPieceAt(new Position(0, col)); // Top row
-            if (piece != null && piece.getPlayer().getType() == PlayerType.PLAYER_ONE) {
-                return playerOne;
-            }
-        }
-
-        // Check if Player Two has a piece in the top row
-        for (int col = 0; col < board.getSize(); col++) {
-            Piece piece = board.getPieceAt(new Position(board.getSize() - 1, col)); // Bottom row
-            if (piece != null && piece.getPlayer().getType() == PlayerType.PLAYER_TWO) {
-                return playerTwo;
-            }
-        }
-
-        return null; // Fallback, though this case shouldn't happen
+        currentPlayer = (currentPlayer.getType() == PlayerType.PLAYER_ONE) ? playerTwo : playerOne;
     }
 
     public Board getBoard() {
         return board;
     }
 
-    public void copyFrom(Game other) {
-        if (other == null) {
-            throw new IllegalArgumentException("Cannot copy from a null Game object.");
-        }
-
-        // Copy the board
-        this.board = other.board.copy();
-
-        // Copy players
-        this.playerOne = new Player(other.playerOne.getType());
-        this.playerOne.setPieces(other.playerOne.getPieces());
-
-        this.playerTwo = new Player(other.playerTwo.getType());
-        this.playerTwo.setPieces(other.playerTwo.getPieces());
-
-        // Copy current player reference
-        this.currentPlayer = (other.currentPlayer.getType() == PlayerType.PLAYER_ONE) ? this.playerOne : this.playerTwo;
-
-        // Copy game logic (if any additional logic needs to be reset, do so here)
-        this.gameLogic = new GameLogic();
-
-        // Copy setup phase if needed (optional, depending on game design)
-        this.setupPhase = new SetupPhase(this.board, this.playerOne, this.playerTwo);
+    public Player getCurrentPlayer() {
+        return currentPlayer;
     }
 
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public Player getWinner() {
+        return winner;
+    }
+
+    public GamePhase getCurrentPhase() {
+        return currentPhase;
+    }
+
+    public void setCurrentPhase(GamePhase phase) {
+        this.currentPhase = phase;
+    }
+
+    public Player getPlayerOne() {
+        return playerOne;
+    }
+
+    public Player getPlayerTwo() {
+        return playerTwo;
+    }
 }

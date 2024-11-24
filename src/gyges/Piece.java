@@ -2,13 +2,17 @@ package gyges;
 
 public abstract class Piece {
     private Position position;
-    private Player player;
+    private final Player player;
+    private final int type;
 
-    public Piece(Player player) {
+    public Piece(Player player, int type) {
         this.player = player;
+        this.type = type;
     }
 
-    public abstract int getValue();
+    public int getType() {
+        return type;
+    }
 
     public abstract Piece copy();
 

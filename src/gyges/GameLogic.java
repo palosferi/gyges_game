@@ -8,7 +8,7 @@ import java.util.List;
 
 public class GameLogic {
 
-    public boolean isValidMove(Board board, Player player, Position from, Position to) {
+    public static boolean isValidMove(Board board, Player player, Position from, Position to) {
         Piece piece = board.getPieceAt(from);
         if (piece == null || !player.getPieces().contains(piece) || !isInActiveRow(player, from)) {
             return false; // No piece at the position or not owned by the player or not in the active row
@@ -17,8 +17,8 @@ public class GameLogic {
         return isPathValid(board, from, to, piece);
     }
 
-    private boolean isPathValid(Board board, Position from, Position to, Piece piece) {
-        int remainingMoves = piece.getValue();
+    private static boolean isPathValid(Board board, Position from, Position to, Piece piece) {
+        int remainingMoves = piece.getType();
         Position current = from;
 
         while (remainingMoves > 0) {
@@ -41,7 +41,7 @@ public class GameLogic {
             Piece occupyingPiece = board.getPieceAt(nextStep);
             if (occupyingPiece != null) {
                 // Handle jump logic
-                remainingMoves -= occupyingPiece.getValue();
+                remainingMoves -= occupyingPiece.getType();
                 if (remainingMoves < 0) {
                     return false; // Can't jump over this piece
                 }
@@ -58,12 +58,12 @@ public class GameLogic {
         return false;
     }
 
-    private List<Position> getValidAdjacentPositions(Board board, Position position) {
+    private static List<Position> getValidAdjacentPositions(Board board, Position position) {
         List<Position> adjacentPositions = new ArrayList<>();
         int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // Up, Down, Left, Right
 
         for (int[] direction : directions) {
-            Position newPosition = new Position(position.getX() + direction[0], position.getY() + direction[1]);
+            Position newPosition = new Position(position.x() + direction[0], position.y() + direction[1]);
             if (board.isWithinBounds(newPosition)) {
                 adjacentPositions.add(newPosition);
             }
@@ -72,19 +72,19 @@ public class GameLogic {
         return adjacentPositions;
     }
 
-    private Position getClosestPosition(List<Position> positions, Position target) {
+    private static Position getClosestPosition(List<Position> positions, Position target) {
         return positions.stream()
                 .min(Comparator.comparingInt(p -> calculateDistance(p, target)))
                 .orElse(null);
     }
 
-    private Position getPositionAfterJump(Position current, Position jumped) {
-        int dx = jumped.getX() - current.getX();
-        int dy = jumped.getY() - current.getY();
-        return new Position(jumped.getX() + dx, jumped.getY() + dy);
+    private static Position getPositionAfterJump(Position current, Position jumped) {
+        int dx = jumped.x() - current.x();
+        int dy = jumped.y() - current.y();
+        return new Position(jumped.x() + dx, jumped.y() + dy);
     }
 
-    public Move executeMove(Board board, Position from, Position to) {
+    public static Move executeMove(Board board, Position from, Position to) {
         Piece movingPiece = board.getPieceAt(from);
         Piece destinationPiece = board.getPieceAt(to);
 
@@ -99,26 +99,26 @@ public class GameLogic {
         return new Move(from, to, movingPiece, null);
     }
 
-    private Position handleCollision(Board board, Position position, Piece movingPiece, Piece destinationPiece) {
+    private static Position handleCollision(Board board, Position position, Piece movingPiece, Piece destinationPiece) {
         // Implement jump or push logic based on game rules
-        Position newPosition = calculateNewPosition(position, destinationPiece.getValue());
+        Position newPosition = calculateNewPosition(position, destinationPiece.getType());
         destinationPiece.setPosition(newPosition);
         return newPosition;
     }
 
-    private Position calculateNewPosition(Position start, int distance) {
-        return new Position(start.getX() + distance, start.getY()); // Example logic
+    private static Position calculateNewPosition(Position start, int distance) {
+        return new Position(start.x() + distance, start.y()); // Example logic
     }
 
-    public boolean isWinningMove(Board board, Move move, Player currentPlayer) {
+    public static boolean isWinningMove(Board board, Move move, Player currentPlayer) {
         if (currentPlayer.getType() == PlayerType.PLAYER_ONE) {
-            return move.getTo().getY() == -1;
+            return move.to().y() == -1;
         } else {
-            return move.getTo().getY() == board.getSize();
+            return move.to().y() == board.getSize();
         }
     }
 
-    public boolean canOpponentPrevent(Board board, Move winningMove, Player currentPlayer) {
+    public static boolean canOpponentPrevent(Board board, Move winningMove, Player currentPlayer) {
         Player opponent = (currentPlayer.getType() == PlayerType.PLAYER_ONE) ?
                 new Player(PlayerType.PLAYER_TWO) : new Player(PlayerType.PLAYER_ONE);
 
@@ -126,7 +126,7 @@ public class GameLogic {
         Board simulationBoard = board.copy();
 
         // Apply the winning move to the simulation board
-        simulationBoard.movePiece(winningMove.getFrom(), winningMove.getTo());
+        simulationBoard.movePiece(winningMove.from(), winningMove.to());
 
         // Check all possible moves for the opponent
         for (int row = 0; row < simulationBoard.getSize(); row++) {
@@ -159,22 +159,22 @@ public class GameLogic {
         return false;
     }
 
-    private boolean isInActiveRow(Player player, Position position) {
+    private static boolean isInActiveRow(Player player, Position position) {
         for(Piece piece : player.getPieces()) {
-            if ((player.getType()==PlayerType.PLAYER_ONE && piece.getPosition().getY() < position.getY()) ||
-                    (player.getType()==PlayerType.PLAYER_TWO && piece.getPosition().getY() > position.getY())) {
+            if ((player.getType()==PlayerType.PLAYER_ONE && piece.getPosition().y() < position.y()) ||
+                    (player.getType()==PlayerType.PLAYER_TWO && piece.getPosition().y() > position.y())) {
                 return false;
             }
         }
         return true;
     }
 
-    private int calculateDistance(Position from, Position to) {
+    private static int calculateDistance(Position from, Position to) {
         // Implement logic to calculate the distance between the two positions
-        return Math.abs(from.getX() - to.getX()) + Math.abs(from.getY() - to.getY());
+        return Math.abs(from.x() - to.x()) + Math.abs(from.y() - to.y());
     }
 
-    public boolean isGameOver(Board board) {
+    public static boolean isGameOver(Board board) {
         // Check if any piece from Player One has reached the last row
         for (int col = 0; col < board.getSize(); col++) {
             Piece piece = board.getPieceAt(new Position(0, col)); // Top row
@@ -194,13 +194,13 @@ public class GameLogic {
         return false; // Game is not over
     }
 
-    public void undoMove(Board board, Move move) {
+    public static void undoMove(Board board, Move move) {
         // Move the piece back to its original position
-        board.movePiece(move.getTo(), move.getFrom());
+        board.movePiece(move.to(), move.from());
 
         // If a piece was displaced, put it back
-        if (move.getDisplacedPiece() != null) {
-            board.placePiece(move.getDisplacedPiece(), move.getTo());
+        if (move.displacedPiece() != null) {
+            board.placePiece(move.displacedPiece(), move.to());
         }
     }
 }

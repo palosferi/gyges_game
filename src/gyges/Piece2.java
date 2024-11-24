@@ -3,12 +3,7 @@ package gyges;
 public class Piece2 extends Piece {
 
     public Piece2(Player player) {
-        super(player);
-    }
-
-    @Override
-    public int getValue() {
-        return 2;
+        super(player, 2);
     }
 
     @Override

@@ -1,30 +1,28 @@
 package gyges.gui;
 
-import gyges.Game;
 import javax.swing.*;
 import java.awt.*;
 
 public class MainFrame extends JFrame {
-    private Game game;
+    private GameController controller;
     private BoardPanel boardPanel;
     private ControlPanel controlPanel;
 
-    public MainFrame(Game game) {
-        super("Gyges Board Game");
-        this.game = game;
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setSize(600, 700);
+    public MainFrame() {
+        controller = new GameController();
+        boardPanel = new BoardPanel(controller);
+        controlPanel = new ControlPanel(controller);
 
-        // Initialize components
-        boardPanel = new BoardPanel(game);
-        controlPanel = new ControlPanel(game, boardPanel);
+        controller.setBoardPanel(boardPanel);
+        controller.setControlPanel(controlPanel);
 
-        // Add components to the frame
         setLayout(new BorderLayout());
-        setJMenuBar(new MenuBar(this, game, boardPanel));
         add(boardPanel, BorderLayout.CENTER);
-        add(controlPanel, BorderLayout.SOUTH);
+        add(controlPanel, BorderLayout.EAST);
 
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        pack();
+        setLocationRelativeTo(null);
         setVisible(true);
     }
 }
