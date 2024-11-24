@@ -1,5 +1,5 @@
 package gyges.enums;
 
 public enum GamePhase {
-    SETUP, PLAY
+    SETUP, PLAY, GAME_OVER
 }

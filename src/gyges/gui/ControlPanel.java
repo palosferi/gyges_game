@@ -1,15 +1,18 @@
 package gyges.gui;
 
+import gyges.gui.GameController;
+import gyges.enums.GamePhase;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class ControlPanel extends JPanel {
-    private final GameController controller;
+    private MainFrame mainFrame;
     private JLabel messageLabel;
     private JComboBox<Integer> pieceTypeComboBox;
 
-    public ControlPanel(GameController controller) {
-        this.controller = controller;
+    public ControlPanel(MainFrame mainFrame) {
+        this.mainFrame = mainFrame;
         setPreferredSize(new Dimension(200, 400));
         initializeComponents();
     }
@@ -25,7 +28,11 @@ public class ControlPanel extends JPanel {
         add(pieceTypeComboBox);
 
         JButton startGameButton = new JButton("Start Game");
-        startGameButton.addActionListener(e -> controller.startSetupPhase());
+        startGameButton.addActionListener(e -> {
+            if (mainFrame.getController().getGame().getCurrentPhase() == GamePhase.SETUP) {
+                mainFrame.getController().startSetupPhase();
+            }
+        });
         add(startGameButton);
     }
 
@@ -38,6 +45,17 @@ public class ControlPanel extends JPanel {
     }
 
     public void updateDisplay() {
-        // Update any necessary display elements based on the game state
+        // Update the display based on the current game state
+        GamePhase currentPhase = mainFrame.getController().getGame().getCurrentPhase();
+
+        if (currentPhase == GamePhase.SETUP) {
+            showMessage("Setup Phase: Place your pieces.");
+            pieceTypeComboBox.setEnabled(true); // Enable piece selection during setup
+        } else if (currentPhase == GamePhase.PLAY) {
+            showMessage("Player " + mainFrame.getController().getGame().getCurrentPlayer().getType() + "'s turn.");
+            pieceTypeComboBox.setEnabled(false); // Disable piece selection during play
+        } else {
+            showMessage("Game Over! Winner: Player " + mainFrame.getController().getGame().getWinner());
+        }
     }
 }

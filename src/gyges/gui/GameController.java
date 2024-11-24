@@ -4,33 +4,19 @@ import gyges.*;
 
 public class GameController {
     private Game game;
-    private BoardPanel boardPanel;
-    private ControlPanel controlPanel;
-    private SetupPhase setupPhase;
+    private MainFrame mainFrame;
 
-    public GameController() {
+    public GameController(MainFrame mainFrame) {
+        this.mainFrame = mainFrame;
         this.game = new Game();
-        this.setupPhase = new SetupPhase(game.getBoard(), game.getPlayerOne(), game.getPlayerTwo());
-    }
-
-    public void setBoardPanel(BoardPanel boardPanel) {
-        this.boardPanel = boardPanel;
-    }
-
-    public void setControlPanel(ControlPanel controlPanel) {
-        this.controlPanel = controlPanel;
-    }
-
-    public Game getGame() {
-        return game;
     }
 
     public void startSetupPhase() {
-        setupPhase.start(this);
+        showMessage("Setup phase started. Place your pieces.");
     }
 
     public boolean placePiece(Position position, int pieceType) {
-        if (game.placePiece(position, pieceType)) {
+        if (GameLogic.isInitialPiecePosition(position.y(), game.getCurrentPlayer()) && game.placePiece(position, pieceType)) {
             updateUI();
             return true;
         }
@@ -46,21 +32,21 @@ public class GameController {
     }
 
     private void updateUI() {
-        if (boardPanel != null) {
-            boardPanel.updateBoardDisplay();
+        if (mainFrame.getBoardPanel() != null) {
+            mainFrame.getBoardPanel().updateBoardDisplay();
         }
-        if (controlPanel != null) {
-            controlPanel.updateDisplay();
+        if (mainFrame.getControlPanel() != null) {
+            mainFrame.getControlPanel().updateDisplay();
         }
     }
 
     public void showMessage(String message) {
-        if (controlPanel != null) {
-            controlPanel.showMessage(message);
+        if (mainFrame.getControlPanel() != null) {
+            mainFrame.getControlPanel().showMessage(message);
         }
     }
 
-    public ControlPanel getControlPanel() {
-        return controlPanel;
+    public Game getGame() {
+        return game;
     }
 }

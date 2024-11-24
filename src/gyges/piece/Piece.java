@@ -1,4 +1,8 @@
-package gyges;
+package gyges.piece;
+
+import gyges.Board;
+import gyges.Player;
+import gyges.Position;
 
 public abstract class Piece {
     private Position position;

@@ -1,5 +1,7 @@
 package gyges;
 
+import gyges.piece.Piece;
+
 public class Board {
     private static final int BOARD_SIZE = 6;
     private final Piece[][] grid;

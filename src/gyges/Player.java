@@ -1,6 +1,7 @@
 package gyges;
 
 import gyges.enums.PlayerType;
+import gyges.piece.Piece;
 
 import java.util.ArrayList;
 import java.util.List;

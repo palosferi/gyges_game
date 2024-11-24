@@ -2,6 +2,11 @@ package gyges.gui;
 
 import gyges.*;
 import gyges.enums.GamePhase;
+import gyges.enums.PlayerType;
+import gyges.piece.Piece;
+import gyges.piece.Piece1;
+import gyges.piece.Piece2;
+import gyges.piece.Piece3;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,13 +16,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BoardPanel extends JPanel {
-    private final GameController controller;
+    private MainFrame mainFrame;
     private final int cellSize = 60;
     private Position selectedPosition = null;
     private Map<Class<? extends Piece>, Color> pieceColors;
 
-    public BoardPanel(GameController controller) {
-        this.controller = controller;
+    public BoardPanel(MainFrame mainFrame) {
+        this.mainFrame = mainFrame;
         setPreferredSize(new Dimension(cellSize * 6, cellSize * 6));
         initializePieceColors();
         addMouseListener(new BoardMouseListener());
@@ -54,18 +59,14 @@ public class BoardPanel extends JPanel {
         for (int row = 0; row < 6; row++) {
             for (int col = 0; col < 6; col++) {
                 Position pos = new Position(row, col);
-                Piece piece = controller.getGame().getBoard().getPieceAt(pos);
+                Piece piece = mainFrame.getController().getGame().getBoard().getPieceAt(pos);
                 if (piece != null) {
                     drawPiece(g, row, col, piece);
-                } else if (isInitialPiecePosition(row, col)) {
+                } else if (GameLogic.isInitialPiecePosition(row, mainFrame.getController().getGame().getCurrentPlayer())) {
                     drawInitialPiece(g, row, col);
                 }
             }
         }
-    }
-
-    private boolean isInitialPiecePosition(int row, int col) {
-        return (row == 0 || row == 5);
     }
 
     private void drawInitialPiece(Graphics g, int row, int col) {
@@ -106,7 +107,7 @@ public class BoardPanel extends JPanel {
             int row = e.getY() / cellSize;
             Position clickedPosition = new Position(row, col);
 
-            if (controller.getGame().getCurrentPhase() == GamePhase.SETUP) {
+            if (mainFrame.getController().getGame().getCurrentPhase() == GamePhase.SETUP) {
                 handleSetupPhase(clickedPosition);
             } else {
                 handlePlayPhase(clickedPosition);
@@ -114,17 +115,17 @@ public class BoardPanel extends JPanel {
         }
 
         private void handleSetupPhase(Position clickedPosition) {
-            int pieceType = controller.getControlPanel().getSelectedPieceType();
-            if (controller.placePiece(clickedPosition, pieceType)) {
+            int pieceType = mainFrame.getControlPanel().getSelectedPieceType();
+            if (mainFrame.getController().placePiece(clickedPosition, pieceType)) {
                 updateBoardDisplay();
             } else {
-                controller.showMessage("Invalid placement!");
+                mainFrame.getController().showMessage("Invalid placement!");
             }
         }
 
         private void handlePlayPhase(Position clickedPosition) {
             if (selectedPosition == null) {
-                Piece piece = controller.getGame().getBoard().getPieceAt(clickedPosition);
+                Piece piece = mainFrame.getController().getGame().getBoard().getPieceAt(clickedPosition);
                 if (piece != null) {
                     selectedPosition = clickedPosition;
                     repaint();
@@ -132,10 +133,10 @@ public class BoardPanel extends JPanel {
                     JOptionPane.showMessageDialog(BoardPanel.this, "No piece selected!");
                 }
             } else {
-                if (controller.getGame().movePiece(selectedPosition, clickedPosition)) {
+                if (mainFrame.getController().getGame().movePiece(selectedPosition, clickedPosition)) {
                     selectedPosition = null;
                     updateBoardDisplay();
-                    controller.getControlPanel().updateDisplay();
+                    mainFrame.getControlPanel().updateDisplay();
                     checkGameOver();
                 } else {
                     JOptionPane.showMessageDialog(BoardPanel.this, "Invalid move!");
@@ -145,14 +146,14 @@ public class BoardPanel extends JPanel {
     }
 
     private void checkGamePhaseChange() {
-        if (controller.getGame().getCurrentPhase() == GamePhase.PLAY) {
+        if (mainFrame.getController().getGame().getCurrentPhase() == GamePhase.PLAY) {
             JOptionPane.showMessageDialog(this, "Setup phase complete. Game phase begins!");
         }
     }
 
     private void checkGameOver() {
-        if (controller.getGame().isGameOver()) {
-            JOptionPane.showMessageDialog(this, "Game Over! Player " + controller.getGame().getWinner() + " wins!");
+        if (mainFrame.getController().getGame().isGameOver()) {
+            JOptionPane.showMessageDialog(this, "Game Over! Player " + mainFrame.getController().getGame().getWinner() + " wins!");
         }
     }
 }

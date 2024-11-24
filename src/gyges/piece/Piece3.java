@@ -1,4 +1,6 @@
-package gyges;
+package gyges.piece;
+
+import gyges.Player;
 
 public class Piece3 extends Piece {
 

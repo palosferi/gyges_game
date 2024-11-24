@@ -2,6 +2,10 @@ package gyges;
 
 import gyges.enums.PlayerType;
 import gyges.enums.GamePhase;
+import gyges.piece.Piece;
+import gyges.piece.Piece1;
+import gyges.piece.Piece2;
+import gyges.piece.Piece3;
 
 public class Game {
     private Board board;

@@ -1,6 +1,7 @@
 package gyges;
 
 import gyges.enums.PlayerType;
+import gyges.piece.Piece;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -202,5 +203,10 @@ public class GameLogic {
         if (move.displacedPiece() != null) {
             board.placePiece(move.displacedPiece(), move.to());
         }
+    }
+
+    public static boolean isInitialPiecePosition(int row, Player currentPlayer) {
+        return ((currentPlayer.getType()== PlayerType.PLAYER_ONE && row == 0)
+                || (currentPlayer.getType()== PlayerType.PLAYER_TWO && row == 5));
     }
 }

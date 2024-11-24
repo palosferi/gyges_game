@@ -9,12 +9,9 @@ public class MainFrame extends JFrame {
     private ControlPanel controlPanel;
 
     public MainFrame() {
-        controller = new GameController();
-        boardPanel = new BoardPanel(controller);
-        controlPanel = new ControlPanel(controller);
-
-        controller.setBoardPanel(boardPanel);
-        controller.setControlPanel(controlPanel);
+        controller = new GameController(this);
+        boardPanel = new BoardPanel(this);
+        controlPanel = new ControlPanel(this);
 
         setLayout(new BorderLayout());
         add(boardPanel, BorderLayout.CENTER);
@@ -24,5 +21,17 @@ public class MainFrame extends JFrame {
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
+    }
+
+    public GameController getController() {
+        return controller;
+    }
+
+    public BoardPanel getBoardPanel() {
+        return boardPanel;
+    }
+
+    public ControlPanel getControlPanel() {
+        return controlPanel;
     }
 }
