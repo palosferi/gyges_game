@@ -1,7 +1,5 @@
 package gyges;
 
-import gyges.gui.MainFrame;
-
 import javax.swing.*;
 
 public class Main {
