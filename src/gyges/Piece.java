@@ -1,26 +1,24 @@
 package gyges;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.Objects;
 
 public class Piece {
-    private final int value;
+    private final CellState value;
 
     public Piece(int value) {
-        this.value = value;
+        this.value = CellState.fromInt(value);
     }
 
-    public int getValue() {
+    public CellState getValue() {
         return value;
     }
 
     public ImageIcon toImage() {
-        return switch (value) {
-            case 1 -> new ImageIcon(Objects.requireNonNull(getClass().getResource("Piece1.png")));
-            case 2 -> new ImageIcon(Objects.requireNonNull(getClass().getResource("Piece2.png")));
-            case 3 -> new ImageIcon(Objects.requireNonNull(getClass().getResource("Piece3.png")));
-            default -> null;
-        };
+        return value.toIcon();
+    }
+
+    public String toString() {
+        return value + "";
     }
 }

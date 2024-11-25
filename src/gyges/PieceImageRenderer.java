@@ -1,15 +1,20 @@
 package gyges;
 
-import java.awt.Component;
+import java.awt.*;
 
-import javax.swing.JLabel;
-import javax.swing.JTable;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 
 public class PieceImageRenderer extends DefaultTableCellRenderer {
+
     @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        return new JLabel(((Piece)value).toImage(), SwingConstants.CENTER);
+    public void setValue(Object value) {
+        if (value instanceof Icon) {
+            setIcon((Icon) value);
+            setText(null);
+        } else {
+            setIcon(null);
+            super.setValue(value);
+        }
     }
 }

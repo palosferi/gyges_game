@@ -4,6 +4,10 @@ public class Game {
     private final Board board = new Board();
     boolean closerSideActive = true;
 
+    public Game() {
+        board.init();
+    }
+
     public boolean move(Position from, Position to) {
         if(from.y()!=activeRow()) {
             return false;
