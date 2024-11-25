@@ -1,6 +1,8 @@
 package gyges;
 
+import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 
 public class Piece {
     private final int value;
@@ -13,12 +15,12 @@ public class Piece {
         return value;
     }
 
-    public String toImage() {
+    public ImageIcon toImage() {
         return switch (value) {
-            case 1 -> "Piece1.png";
-            case 2 -> "Piece2.png";
-            case 3 -> "Piece3.png";
-            default -> "";
+            case 1 -> new ImageIcon(Objects.requireNonNull(getClass().getResource("Piece1.png")));
+            case 2 -> new ImageIcon(Objects.requireNonNull(getClass().getResource("Piece2.png")));
+            case 3 -> new ImageIcon(Objects.requireNonNull(getClass().getResource("Piece3.png")));
+            default -> null;
         };
     }
 }

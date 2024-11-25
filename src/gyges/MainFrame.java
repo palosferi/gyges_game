@@ -6,22 +6,23 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class MainFrame extends JFrame {
-    private JLabel messageLabel;
-    private JComboBox<Integer> pieceTypeComboBox;
-    static Game game = new Game();
-    static JTable table = new JTable(game.getBoard());
+
+    Game game = new Game();
+    JTable table = new JTable(game.getBoard());
+    final int CELL_SIZE = 64;
+    final int CELL_COUNT = 6;
 
     public MainFrame() {
         // Set preferred size for the entire window
-        setPreferredSize(new Dimension(6 * 64 + 150, 8 * 64));
+        setPreferredSize(new Dimension(CELL_COUNT * CELL_SIZE + 100, (CELL_COUNT+2) * CELL_SIZE));
 
-        table.setRowHeight(64);
+        table.setRowHeight(CELL_SIZE);
         table.setDefaultRenderer(Object.class, new PieceImageRenderer());
         table.addMouseListener(new BoardMouseListener());
 
         // Wrap the table in a JScrollPane
         JScrollPane tableScrollPane = new JScrollPane(table);
-        tableScrollPane.setPreferredSize(new Dimension(6 * 64, 6 * 64));
+        tableScrollPane.setPreferredSize(new Dimension(CELL_COUNT * CELL_SIZE, CELL_COUNT * CELL_SIZE));
 
         JPanel controlPanel = new JPanel();
         controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
@@ -40,7 +41,7 @@ public class MainFrame extends JFrame {
         setVisible(true);
     }
 
-    private static class BoardMouseListener extends MouseAdapter {
+    private class BoardMouseListener extends MouseAdapter {
         @Override
         public void mouseClicked(MouseEvent e) {
             int r = table.rowAtPoint(e.getPoint());
@@ -53,8 +54,16 @@ public class MainFrame extends JFrame {
     }
 
     private void initializeComponents(JPanel controlPanel) {
-        messageLabel = new JLabel("Welcome to Gyges!");
+        JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
+        separator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20)); // Full-width line
+        controlPanel.add(separator);
+
+        JLabel messageLabel = new JLabel("Welcome to Gyges!");
         controlPanel.add(messageLabel);
+
+        JSeparator separator2 = new JSeparator(SwingConstants.HORIZONTAL);
+        separator2.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20)); // Full-width line
+        controlPanel.add(separator2);
 
         JButton startGameButton = new JButton("New Game");
         startGameButton.addActionListener(e -> newGame());
