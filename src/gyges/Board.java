@@ -59,7 +59,7 @@ public class Board extends DefaultTableModel {
     }
 
     public boolean tryToMovePiece(Position from, Position to) {
-        if (isPositionJumpable(to)) {
+        if (isPositionFinalJump(to)) {
             setValueAt(board[from.x()][from.y()], to.y(), to.x());
             setValueAt(new Piece(), from.y(), from.x());
             //board[to.x()][to.y()] = board[from.x()][from.y()];
@@ -69,8 +69,14 @@ public class Board extends DefaultTableModel {
         return false;
     }
 
+    public boolean isPositionFinalJump(Position position) {
+        return getPieceAt(position).getState() == CellState.SELECTED;
+    }
+    public boolean isCellEmpty(Position position) {
+        return getPieceAt(position).getState() == CellState.EMPTY;
+    }
     public boolean isPositionJumpable(Position position) {
-        return board[position.x()][position.y()].getState() == CellState.SELECTED;
+        return getPieceAt(position).getValue() / CellState.COUNT == 1;
     }
 
     public Piece getPieceAt(Position position) {
@@ -152,19 +158,19 @@ public class Board extends DefaultTableModel {
             board[pos.x()][pos.y()].setSelected(true);
         } else {
             // Balra
-            if (pos.x() > 0 && !visited.contains(pos.left()) && ( depth == 1 || isPositionJumpable(pos.left()))) {
+            if (pos.x() > 0 && !visited.contains(pos.left()) && ( depth == 1 || isCellEmpty(pos.left()))) {
                 findPositions(pos.left(), depth - 1, visited);
             }
             // Jobbra
-            if (pos.x() < cols - 1 && !visited.contains(pos.right()) && ( depth == 1 || isPositionJumpable(pos.right()))) {
+            if (pos.x() < cols - 1 && !visited.contains(pos.right()) && ( depth == 1 || isCellEmpty(pos.right()))) {
                 findPositions(pos.right(), depth - 1, visited);
             }
             // Fel
-            if (pos.y() > 0 && !visited.contains(pos.up()) && ( depth == 1 || isPositionJumpable(pos.up()))) {
+            if (pos.y() > 0 && !visited.contains(pos.up()) && ( depth == 1 || isCellEmpty(pos.up()))) {
                 findPositions(pos.up(), depth - 1, visited);
             }
             // Le
-            if (pos.y() < rows - 1 && !visited.contains(pos.down()) && ( depth == 1 || isPositionJumpable(pos.down()))) {
+            if (pos.y() < rows - 1 && !visited.contains(pos.down()) && ( depth == 1 || isCellEmpty(pos.down()))) {
                 findPositions(pos.down(), depth - 1, visited);
             }
         }

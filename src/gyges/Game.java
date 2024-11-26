@@ -71,7 +71,7 @@ public class Game {
                     board.setAllCellsUnselected(); // Minden kiálasztás törlése
                     board.exploreMoves(selectedClick); // Léphető pozíciók kiválasztása
                     board.setStartPosition(selectedClick); // Kezdő pozíció beállítása
-                } else if (selectedClick != null && nextClick == null) {
+                } else if (selectedClick != null && nextClick == null && board.isPositionJumpable(new Position(x, y))) {
                     nextClick = new Position(x, y);
                     if (board.tryToMovePiece(selectedClick, nextClick)) {
                         selectedClick = null;
@@ -81,6 +81,7 @@ public class Game {
                         mainFrame.playerLabel.setText("Player: " + (player? "Bottom" : "Top"));
                     } else {
                         board.setAllCellsUnselected(); // Minden kiálasztás törlése
+                        board.setStartPosition(selectedClick); // Kezdő pozíció beállítása
                         board.exploreMoves(nextClick);
                         nextClick = null;
                     }
