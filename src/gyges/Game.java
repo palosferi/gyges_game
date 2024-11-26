@@ -1,18 +1,21 @@
 package gyges;
 
-import static gyges.GameState.*;
+import javax.swing.table.TableModel;
 
 public class Game {
+    private final MainFrame mainFrame;
     private final Board board = new Board();
-    //boolean closerSideActive = true;
+
+    private boolean player = true; // Igaz: Alsó játékos van soron, Hamis: Felső játékos van soron
 
     private Position selectedClick; // Elős klikk
     private Position nextClick; // Második kattintás
 
-    private GameState state;
+    private GameState state; // = new GameState();
 
-    public Game(GameState state) {
-        this.state = state;
+    public Game(MainFrame mainFrame) {
+        this.mainFrame = mainFrame;
+        state = GameState.IDLE;
         selectedClick = null;
         nextClick = null;
     }
@@ -24,10 +27,20 @@ public class Game {
 
     public void run() {
         // Ez igazából nem csinál semmit
+        player = true;
+        selectedClick = null;
+        nextClick = null;
     }
 
+    public void topCellClicked() {
+
+    }
+
+    public void bottomCellClicked() {
+
+    }
     public void clicked(int x, int y) {
-        switch (state.current) {
+        switch (state) {
             case IDLE:
                 // Itt nem csinálunk semmit
                 board.setAllCellsUnselected();
@@ -51,8 +64,32 @@ public class Game {
                 break;
             case PLAYING:
                 // Itt a játék közben van
-                board.setAllCellsUnselected();
+                int activeRow = board.getActiveRow(player);
+                // Ha első kattintás, és az aktív sorban katitntunk
+                if (selectedClick == null && y == activeRow) {
+                    selectedClick = new Position(x, y);
+                    board.setAllCellsUnselected(); // Minden kiálasztás törlése
+                    board.exploreMoves(selectedClick); // Léphető pozíciók kiválasztása
+                    board.setStartPosition(selectedClick); // Kezdő pozíció beállítása
+                } else if (selectedClick != null && nextClick == null) {
+                    nextClick = new Position(x, y);
+                    if (board.tryToMovePiece(selectedClick, nextClick)) {
+                        selectedClick = null;
+                        nextClick = null;
+                        board.setAllCellsUnselected(); // Minden kiálasztás törlése
+                        player = !player; // játékosváltás
+                        mainFrame.playerLabel.setText("Player: " + (player? "Bottom" : "Top"));
+                    } else {
+                        board.setAllCellsUnselected(); // Minden kiálasztás törlése
+                        board.exploreMoves(nextClick);
+                        nextClick = null;
+                    }
+                }
+
+
                     //board.exploreMoves(selectedClick);
+                //player = !player; // játékosváltás
+                //mainFrame.playerLabel.setText("Player: " + (player? "Bottom" : "Top"));
                 break;
         }
     }
@@ -69,36 +106,21 @@ public class Game {
 //        return true;
 //    }
 
-//    public int activeRow() {
-//        if (closerSideActive) {
-//            for(int y = 0; y < 5; y++) {
-//                for(int x = 0; x < 6; x++) {
-//                    if(board.getPieceAt(new Position(x, y)) != null) {
-//                        return y;
-//                    }
-//                }
-//            }
-//        } else {
-//            for(int y = 5; y > 0; y--) {
-//                for(int x = 0; x < 6; x++) {
-//                    if(board.getPieceAt(new Position(x, y))!= null) {
-//                        return y;
-//                    }
-//                }
-//            }
-//        }
-//        return -1;
-//    }
+
 
     public Board getBoard() {
         return board;
     }
+    public GameState getState() {
+        return state;
+    }
+    public void setState(GameState state) {
+        this.state = state;
+    }
 
-
-
-//    public boolean isOver() {
-//        return false;
-//    }
+    public boolean getPlayer() {
+        return player;
+    }
 
 
 }

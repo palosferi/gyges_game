@@ -19,7 +19,7 @@ public class BoardMouseListener extends MouseAdapter {
         int y = table.rowAtPoint(e.getPoint());
         int x = table.columnAtPoint(e.getPoint());
 
-        if (e.getButton() == MouseEvent.BUTTON1) {
+        if (x != -1 && y != -1 && e.getButton() == MouseEvent.BUTTON1) {
             game.clicked(x, y);
             table.repaint();
         }
