@@ -85,6 +85,10 @@ public class Game {
                         board.exploreMoves(nextClick);
                         nextClick = null;
                     }
+                } else if (board.getPieceAt(new Position(x, y)).getState() == CellState.EMPTY) {
+                    selectedClick = null;
+                    nextClick = null;
+                    board.setAllCellsUnselected(); // Minden kiálasztás törlése
                 }
 
 
