@@ -1,10 +1,9 @@
 package gyges;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+
+import static gyges.GameState.*;
 
 public class MainFrame extends JFrame {
 
@@ -12,6 +11,8 @@ public class MainFrame extends JFrame {
     JTable table;
     final int CELL_SIZE = 64;
     final int CELL_COUNT = 6;
+
+    private GameState state = new GameState(); // = GameState.IDLE;
 
     public MainFrame() {
         // Set preferred size for the entire window
@@ -21,12 +22,15 @@ public class MainFrame extends JFrame {
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
 
-        game = new Game();
+        state.current = IDLE; // Set initial state
+        game = new Game(state);
+        game.init();
+
         table = new JTable(game.getBoard());
         table.setRowHeight(CELL_SIZE);
         table.setDefaultRenderer(Object.class, new PieceImageRenderer());
         table.setTableHeader(null);
-        table.addMouseListener(new BoardMouseListener());
+        table.addMouseListener(new BoardMouseListener(table, game));
         table.setCellSelectionEnabled(true); // Enable cell selection
         table.setRowSelectionAllowed(false); // Disable row selection
         table.setColumnSelectionAllowed(false); // Optional: Disable column selection
@@ -43,23 +47,11 @@ public class MainFrame extends JFrame {
         add(controlPanel, BorderLayout.EAST);
 
 
-
         // Call pack at the end to set the correct size
         pack();
         setVisible(true);
     }
 
-    private class BoardMouseListener extends MouseAdapter {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            int r = table.rowAtPoint(e.getPoint());
-            int c = table.columnAtPoint(e.getPoint());
-
-            if (game.isOver()) {
-                table.setEnabled(false);
-            }
-        }
-    }
 
     private void initializeComponents(JPanel controlPanel) {
         JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
@@ -73,13 +65,28 @@ public class MainFrame extends JFrame {
         separator2.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20)); // Full-width line
         controlPanel.add(separator2);
 
-        JButton startGameButton = new JButton("New Game");
-        startGameButton.addActionListener(e -> newGame());
-        controlPanel.add(startGameButton);
+        actionButton = new JButton("New Game");
+        actionButton.addActionListener(e -> actionButtonClicked());
+        controlPanel.add(actionButton);
     }
+    JButton actionButton;
 
-    public void newGame() {
-        game = new Game();
-        table.setModel(game.getBoard()); // Refresh the table with the new game's board
+    public void actionButtonClicked() {
+        switch (state.current) {
+            case IDLE:
+                actionButton.setText("Start Game");
+                state.current = SETUP;
+                game.init(); // Init the game
+                break;
+            case SETUP:
+                actionButton.setText("End Game");
+                state.current = PLAYING;
+                game.run(); // Run the game
+                break;
+            case PLAYING:
+                actionButton.setText("New Game");
+                state.current = IDLE;
+                break;
+        }
     }
 }

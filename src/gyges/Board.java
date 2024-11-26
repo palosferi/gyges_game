@@ -49,10 +49,9 @@ public class Board extends DefaultTableModel {
     }
 
     public void init() {
-        int value = 1;
         for (int i = 0; i < cols; i++) {
-            board[i][0] = new Piece(value + i % 3); // Player 1 pieces at the top
-            board[i][5] = new Piece(value + i % 3); // Player 2 pieces at the top
+            board[i][0] = new Piece(1 + i % 3); // Player 1 pieces at the top
+            board[i][5] = new Piece(1 + i % 3); // Player 2 pieces at the top
         }
     }
 
@@ -85,4 +84,26 @@ public class Board extends DefaultTableModel {
     }
 
 
+    public void exploreSwappables(Position pos) {
+        if (pos.y() == 0 || pos.y() == 5) {
+            for (int x = 0; x < cols; x++) {
+                if (x != pos.x()) {
+                    board[x][pos.y()].setSelected(true);
+                }
+            }
+        }
+    }
+    public void setAllCellsUnselected(){
+        for (int x = 0; x < cols; x++) {
+            for (int y = 0; y < rows; y++) {
+                board[x][y].setSelected(false);
+            }
+        }
+    }
+
+    public void swapPieces(Position selectedClick, Position nextClick) {
+        Piece temp = board[selectedClick.x()][selectedClick.y()];
+        board[selectedClick.x()][selectedClick.y()] = board[nextClick.x()][nextClick.y()];
+        board[nextClick.x()][nextClick.y()] = temp;
+    }
 }

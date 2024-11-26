@@ -53,4 +53,5 @@ public enum CellState {
             case SELECTED_THREE ->  new ImageIcon(Objects.requireNonNull(getClass().getResource("/sel_p3.png")));
         };
     }
+
 }
