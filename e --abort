@@ -1,0 +1,108 @@
+[33mcommit 8c90cdb811dc280c0de91646539cc0d180336eb5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Ferenc Pálos <131483534+palosferi@users.noreply.github.com>
+Date:   Wed Nov 27 13:18:32 2024 +0100
+
+    smth
+
+[33mcommit c763fdfcdd425906d83e5a5ac852813f2998879c[m
+Author: Ferenc Pálos <131483534+palosferi@users.noreply.github.com>
+Date:   Wed Nov 27 13:12:54 2024 +0100
+
+    files removed
+
+[33mcommit 78f912f477691ae025281e8c029c59db575f9f5e[m
+Author: Ferenc Pálos <131483534+palosferi@users.noreply.github.com>
+Date:   Tue Nov 26 11:43:43 2024 +0100
+
+    Roughly works except visited cell -> cell border check
+
+[33mcommit 1d71a2ec0fd01cb9bb54be35ab8e5c923a554abf[m
+Author: Ferenc Pálos <131483534+palosferi@users.noreply.github.com>
+Date:   Tue Nov 26 11:35:29 2024 +0100
+
+    Almost works but not exactly
+
+[33mcommit 443f1f3f215eaba5996b42c6c296e180f90e7e6f[m
+Author: Ferenc Pálos <131483534+palosferi@users.noreply.github.com>
+Date:   Tue Nov 26 11:22:42 2024 +0100
+
+    It cursed but works, Start icons added
+
+[33mcommit 2195363174a74e2b0c17d2162238fd3abd0595b8[m
+Author: Ferenc Pálos <131483534+palosferi@users.noreply.github.com>
+Date:   Tue Nov 26 01:27:41 2024 +0100
+
+    Initial swapping works
+
+[33mcommit 34982a442adc49f6bf528b87059ad2ec259e8a5d[m
+Author: Ferenc Pálos <131483534+palosferi@users.noreply.github.com>
+Date:   Tue Nov 26 00:23:03 2024 +0100
+
+    It works, thank you Marci
+
+[33mcommit 24ec662e548f1b61758396d539015213b03476d3[m
+Author: Ferenc Pálos <131483534+palosferi@users.noreply.github.com>
+Date:   Mon Nov 25 23:28:48 2024 +0100
+
+    commit #11
+
+[33mcommit 56b46c151526ebeaccf64e47344a1f42d7fa90e6[m
+Author: Ferenc Pálos <131483534+palosferi@users.noreply.github.com>
+Date:   Mon Nov 25 21:32:20 2024 +0100
+
+    commit #10
+
+[33mcommit 635f2334bbe889c51f9b1e6d87bf52f7c4ff2c33[m
+Author: Ferenc Pálos <131483534+palosferi@users.noreply.github.com>
+Date:   Sun Nov 24 23:46:55 2024 +0100
+
+    commit #9
+
+[33mcommit 73c77197db21c52e32faacb1e4a951b45bc32675[m
+Author: Ferenc Pálos <131483534+palosferi@users.noreply.github.com>
+Date:   Sun Nov 24 20:29:01 2024 +0100
+
+    commit #8
+
+[33mcommit 285aaa5340aa27bde775be1c28079114d56cc725[m
+Author: Ferenc Pálos <131483534+palosferi@users.noreply.github.com>
+Date:   Thu Nov 21 14:43:36 2024 +0100
+
+    started UI
+
+[33mcommit cf170b350bb13227da66db8eafb9bcbff71a0680[m
+Author: Ferenc Pálos <131483534+palosferi@users.noreply.github.com>
+Date:   Wed Nov 20 18:06:13 2024 +0100
+
+    Bugfixes
+
+[33mcommit 18e5b51fd97dad871bcb545ff246695c4ac6accc[m
+Author: Ferenc Pálos <131483534+palosferi@users.noreply.github.com>
+Date:   Tue Nov 19 23:42:22 2024 +0100
+
+    The project runs in terminal with issues
+
+[33mcommit 88d15b03b08368a9dbfc79603d1ab6d094acc097[m
+Author: Ferenc Pálos <131483534+palosferi@users.noreply.github.com>
+Date:   Tue Nov 19 00:54:47 2024 +0100
+
+    Started implementing Board, GameLogic, Player, Position classes
+
+[33mcommit 7180a9a9f46eec2e7bf1dc22be57fc78b0aae498[m
+Merge: 7b0e598 3232fb9
+Author: Ferenc Pálos <131483534+palosferi@users.noreply.github.com>
+Date:   Tue Nov 19 00:41:37 2024 +0100
+
+    Merge remote and local repositories
+
+[33mcommit 7b0e5983bcbd5d75ac80001afda39e15345b20b4[m
+Author: Ferenc Pálos <131483534+palosferi@users.noreply.github.com>
+Date:   Tue Nov 19 00:40:07 2024 +0100
+
+    Initial commit
+
+[33mcommit 3232fb95b18cdb9da8420314ec138aff1635ac7f[m
+Author: Ferenc Pálos <131483534+palosferi@users.noreply.github.com>
+Date:   Tue Nov 19 00:37:55 2024 +0100
+
+    Initial commit
