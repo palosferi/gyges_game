@@ -1,6 +1,7 @@
 package gyges;
 
 import javax.swing.table.DefaultTableModel;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -8,8 +9,6 @@ public class Board extends DefaultTableModel {
     private final Piece[][] board;
     private final int rows;
     private final int cols;
-
-    //public static final Piece NULL_PIECE = new Piece(0);
 
     public Board() {
         this.rows = 6;
@@ -62,8 +61,6 @@ public class Board extends DefaultTableModel {
         if (isPositionFinalJump(to)) {
             setValueAt(board[from.x()][from.y()], to.y(), to.x());
             setValueAt(new Piece(), from.y(), from.x());
-            //board[to.x()][to.y()] = board[from.x()][from.y()];
-            //board[from.x()][from.y()] = new Piece();
             return true;
         }
         return false;
@@ -106,24 +103,13 @@ public class Board extends DefaultTableModel {
         return -1;
     }
 
-//
-//    @Override
-//    public Object getValueAt(int row, int column) {
-//        return getPieceAt(new Position(column, row));
-//    }
-
-//    @Override
-//    @SuppressWarnings("unchecked")
-//    public Vector<Vector> getDataVector() {
-//        return super.getDataVector();
-//    }
-
-
     public void exploreSwappables(Position pos) {
         if (pos.y() == 0 || pos.y() == 5) {
             for (int x = 0; x < cols; x++) {
                 if (x != pos.x()) {
                     board[x][pos.y()].setSelected(true);
+                } else {
+                    board[x][pos.y()].setStart(true);
                 }
             }
         }
@@ -143,9 +129,7 @@ public class Board extends DefaultTableModel {
     }
 
     public void exploreMoves(Position pos) {
-        //board[pos.x()][pos.y()].setSelected(false); // A kiválasztott cellát unselectiddé teszünk
         CellState cell = board[pos.x()][pos.y()].getState();
-        //  cell != CellState.EMPTY && cell != CellState.SELECTED
         if (cell.getHeight() != 0) {
             // Minden elérhető szabályos moveot selectiddé teszünk
             findPositions(pos, cell.getHeight(), new LinkedList<>());
@@ -179,4 +163,37 @@ public class Board extends DefaultTableModel {
     public void setStartPosition(Position selectedClick) {
         board[selectedClick.x()][selectedClick.y()].setStart(true);
     }
+
+    public List<List<Integer>> getBoardState() {
+        // Convert board's cells into a list of lists (for Gson serialization)
+        List<List<Integer>> state = new ArrayList<>();
+        for (int y = 0; y < rows; y++) {
+            List<Integer> row = new ArrayList<>();
+            for (int x = 0; x < cols; x++) {
+                row.add(getPieceId(x, y)); // Example: assuming each cell has a unique piece ID or 0 for empty
+            }
+            state.add(row);
+        }
+        return state;
+    }
+
+    public void setBoardState(List<List<Integer>> state) {
+        for (int y = 0; y < rows; y++) {
+            for (int x = 0; x < cols; x++) {
+                setPieceId(x, y, state.get(y).get(x));  // Use setPieceId to set the piece ID for each cell
+            }
+        }
+    }
+
+
+    public int getPieceId(int x, int y) {
+        Piece piece = board[x][y];
+        return piece.getValue();  // Return the integer value of the piece's state
+    }
+
+    public void setPieceId(int x, int y, int pieceId) {
+        Piece piece = new Piece(pieceId);  // Create a new Piece based on the given ID
+        board[x][y] = piece;  // Set the piece at the given position
+    }
+
 }

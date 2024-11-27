@@ -1,16 +1,17 @@
 package gyges;
 
-import javax.swing.table.TableModel;
+import com.google.gson.*;
+
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class Game {
     private final MainFrame mainFrame;
     private final Board board = new Board();
-
     private boolean player = true; // Igaz: Alsó játékos van soron, Hamis: Felső játékos van soron
-
     private Position selectedClick; // Elős klikk
     private Position nextClick; // Második kattintás
-
     private GameState state; // = new GameState();
 
     public Game(MainFrame mainFrame) {
@@ -39,6 +40,7 @@ public class Game {
     public void bottomCellClicked() {
 
     }
+
     public void clicked(int x, int y) {
         switch (state) {
             case IDLE:
@@ -56,7 +58,9 @@ public class Game {
                 // Második klikk
                 else if (nextClick == null) {
                     nextClick = new Position(x, y);
-                    board.swapPieces(selectedClick, nextClick);
+                    if((selectedClick.y() == 0 || selectedClick.y() == 5) && (nextClick.y() == 0 || nextClick.y() == 5)) {
+                        board.swapPieces(selectedClick, nextClick);
+                    }
                     selectedClick = null;
                     nextClick = null;
                     board.setAllCellsUnselected();
@@ -99,20 +103,6 @@ public class Game {
         }
     }
 
-//    public boolean move(Position from, Position to) {
-//        if(from.y()!=activeRow()) {
-//            return false;
-//        }
-//        boolean moved = false;
-//        while(!moved) {
-//            moved = board.move(from, to);
-//            from = to;
-//        }
-//        return true;
-//    }
-
-
-
     public Board getBoard() {
         return board;
     }
@@ -127,5 +117,29 @@ public class Game {
         return player;
     }
 
+    public void saveGameState(String filePath) {
+        Gson gson = new Gson();
+        GameStateData gameStateData = new GameStateData(board.getBoardState(), player);
 
+        try (FileWriter writer = new FileWriter(filePath)) {
+            gson.toJson(gameStateData, writer);
+            System.out.println("Game state saved successfully!");
+        } catch (IOException e) {
+            System.err.println("Failed to save game state: " + e.getMessage());
+        }
+    }
+
+    public void loadGameState(String filePath) {
+        Gson gson = new Gson();
+
+        try (FileReader reader = new FileReader(filePath)) {
+            GameStateData gameStateData = gson.fromJson(reader, GameStateData.class);
+            board.setBoardState(gameStateData.getBoardState());
+            player = gameStateData.isCurrentPlayer();
+            mainFrame.playerLabel.setText("Player: " + (player ? "Bottom" : "Top"));
+            System.out.println("Game state loaded successfully!");
+        } catch (IOException e) {
+            System.err.println("Failed to load game state: " + e.getMessage());
+        }
+    }
 }
