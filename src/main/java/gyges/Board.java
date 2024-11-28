@@ -213,8 +213,8 @@ public class Board extends DefaultTableModel {
 
     public boolean findIfWins(Position pos, int depth, boolean player, List<Position> visited) {
         visited.add(pos);
-        if (depth == 0) {
-            board[pos.x()][pos.y()].setSelected(true);
+        if (depth == 0 && pos.y() == (player? 0 : 5)) {
+            return true;
         } else {
             // Balra
             if (pos.x() > 0 && !visited.contains(pos.left()) && ( depth == 1 || isCellEmpty(pos.left()))) {
@@ -233,5 +233,6 @@ public class Board extends DefaultTableModel {
                 findIfWins(pos.down(), depth - 1, player, visited);
             }
         }
+        return false;
     }
 }

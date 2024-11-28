@@ -10,7 +10,7 @@ public class MainFrame extends JFrame {
     JTable table;
     static final int CELL_SIZE = 64;
     static final int CELL_COUNT = 6;
-    JLabel playerLabel;
+    JLabel playerLabel = new JLabel();
     JButton actionButton;
     JPanel controlPanel;
     JTextArea messageArea;
@@ -104,9 +104,7 @@ public class MainFrame extends JFrame {
 
         controlPanel.add(Box.createVerticalStrut(20)); // Blank space
 
-        // Use a fixed size for the playerLabel to prevent it from resizing
-        // Use a fixed size for the playerLabel to prevent it from resizing
-        switchPlayerLabel();
+        updatePlayerLabel(game.getPlayer());
         playerLabel.setPreferredSize(new Dimension(200, 40)); // Fixed width, same height
         playerLabel.setMaximumSize(new Dimension(200, 40)); // Ensure it doesn't expand
         controlPanel.add(playerLabel);
@@ -219,6 +217,8 @@ public class MainFrame extends JFrame {
                 game.init(); // Init the game
                 break;
             case SETUP:
+                game.getBoard().setAllCellsUnselectedAndNonstart();
+                table.repaint();
                 actionButton.setText("Revert move");
                 game.setState(PLAYING);
                 game.run(); // Run the game
@@ -232,8 +232,10 @@ public class MainFrame extends JFrame {
         messageArea.append(message + "\n"); // Append the message and move to a new line
         messageArea.setCaretPosition(messageArea.getDocument().getLength()); // Scroll to the bottom
     }
-    
-    public void switchPlayerLabel() {
-        playerLabel = new JLabel(String.format("<html><div width='200'>Current Player: %-10s</div></html>", (game.getPlayer() ? "Bottom" : "Top")));
+
+    public void updatePlayerLabel(boolean isBottomPlayer) {
+        String playerText = String.format("<html><div width='200'>Current Player: %-10s</div></html>", (isBottomPlayer ? "Bottom" : "Top"));
+        playerLabel.setText(playerText);
     }
+
 }
