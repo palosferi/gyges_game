@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.LinkedList;
 
 import static gyges.GameState.*;
 
@@ -39,6 +40,17 @@ public class Game {
     }
 
     public void topCellClicked() {
+        if(state == PLAYING && player && selectedClick != null && nextClick == null) {
+            Piece piece = board.getPieceAt(selectedClick.x(), selectedClick.y());
+            if(piece.isStart() && board.findIfWins(selectedClick, piece.getState().getHeight()-1, true, new LinkedList<>())) {
+                for(int i = 0; i < 6; i++) {
+                    if(board[][]) {
+                        gameOver();
+                    }
+                }
+            }
+
+        }
         //TODO
     }
 
@@ -50,7 +62,7 @@ public class Game {
         switch (state) {
             case IDLE:
                 // Itt nem csinálunk semmit
-                board.setAllCellsUnselected();
+                board.setAllCellsUnselectedAndNonstart();
                 break;
             case SETUP:
                 // Itt a bábúk rakottak legyenek
@@ -68,7 +80,7 @@ public class Game {
                     }
                     selectedClick = null;
                     nextClick = null;
-                    board.setAllCellsUnselected();
+                    board.setAllCellsUnselectedAndNonstart();
                 }
                 break;
             case PLAYING:
@@ -77,7 +89,7 @@ public class Game {
                 // Ha első kattintás, és az aktív sorban katitntunk
                 if (selectedClick == null && y == activeRow) {
                     selectedClick = new Position(x, y);
-                    board.setAllCellsUnselected(); // Minden kiálasztás törlése
+                    board.setAllCellsUnselectedAndNonstart(); // Minden kiálasztás törlése
                     board.exploreMoves(selectedClick); // Léphető pozíciók kiválasztása
                     board.setStartPosition(selectedClick); // Kezdő pozíció beállítása
                 } else if (selectedClick != null && nextClick == null && board.isPositionJumpable(new Position(x, y))) {
@@ -85,11 +97,11 @@ public class Game {
                     if (board.tryToMovePiece(selectedClick, nextClick)) {
                         selectedClick = null;
                         nextClick = null;
-                        board.setAllCellsUnselected(); // Minden kiálasztás törlése
+                        board.setAllCellsUnselectedAndNonstart(); // Minden kiálasztás törlése
                         player = !player; // játékosváltás
-                        mainFrame.playerLabel.setText(String.format("<html><div width='200'>Current Player: %-10s</div></html>", (getPlayer() ? "Bottom" : "Top")));
+                        mainFrame.switchPlayerLabel();
                     } else {
-                        board.setAllCellsUnselected(); // Minden kiálasztás törlése
+                        board.setAllCellsUnselectedAndNonstart(); // Minden kiválasztás törlése
                         board.setStartPosition(selectedClick); // Kezdő pozíció beállítása
                         board.exploreMoves(nextClick);
                         nextClick = null;
@@ -97,7 +109,7 @@ public class Game {
                 } else if (board.getPieceAt(new Position(x, y)).getState() == CellState.EMPTY) {
                     selectedClick = null;
                     nextClick = null;
-                    board.setAllCellsUnselected(); // Minden kiálasztás törlése
+                    board.setAllCellsUnselectedAndNonstart(); // Minden kiválasztás törlése
                 }
                 break;
         }
@@ -170,7 +182,7 @@ public class Game {
                     // Apply the loaded state
                     board.setBoardState(gameStateData.getBoardState());
                     player = gameStateData.isCurrentPlayer();
-                    mainFrame.playerLabel.setText(String.format("<html><div width='200'>Current Player: %-10s</div></html>", (getPlayer() ? "Bottom" : "Top")));
+                    mainFrame.switchPlayerLabel();
 
                     mainFrame.table.revalidate();
                     mainFrame.table.repaint();
@@ -191,11 +203,12 @@ public class Game {
     }
 
     public void revertMove() {
-
+    //TODO
     }
 
     public void gameOver() {
         mainFrame.actionButton.setText("New Game");
+        board.setAllCellsUnselectedAndNonstart();
         setState(IDLE);
     }
 }

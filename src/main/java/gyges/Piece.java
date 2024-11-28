@@ -96,4 +96,7 @@ public class Piece {
             }
         }
     }
+    public boolean isStart() {
+        return value.getValue() >= CellState.START_ONE.getValue() && value.getValue() <= CellState.START_THREE.getValue();
+    }
 }

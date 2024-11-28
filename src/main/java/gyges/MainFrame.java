@@ -54,14 +54,14 @@ public class MainFrame extends JFrame {
         JButton topSpecialCell = new JButton();
         topSpecialCell.setPreferredSize(new Dimension(CELL_SIZE, CELL_SIZE));
         topSpecialCell.setBackground(Color.WHITE);
-        topSpecialCell.addActionListener(e -> topSpecialCellClicked());
+        topSpecialCell.addActionListener(e -> game.topCellClicked());
         topRow.add(topSpecialCell);
 
         JPanel bottomRow = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton bottomSpecialCell = new JButton();
         bottomSpecialCell.setPreferredSize(new Dimension(CELL_SIZE, CELL_SIZE));
         bottomSpecialCell.setBackground(Color.WHITE);
-        bottomSpecialCell.addActionListener(e -> bottomSpecialCellClicked());
+        bottomSpecialCell.addActionListener(e -> game.bottomCellClicked());
         bottomRow.add(bottomSpecialCell);
 
         boardPanel.add(topRow, BorderLayout.NORTH);
@@ -75,15 +75,6 @@ public class MainFrame extends JFrame {
         pack();
         setVisible(true);
     }
-
-    private void bottomSpecialCellClicked() {
-        game.bottomCellClicked(); // Place a piece in the bottom cell
-    }
-
-    private void topSpecialCellClicked() {
-        game.topCellClicked(); // Place a piece in the top cell
-    }
-
 
     private void initializeComponents(JPanel controlPanel) {
         controlPanel.add(Box.createVerticalStrut(20)); // Blank space
@@ -115,7 +106,7 @@ public class MainFrame extends JFrame {
 
         // Use a fixed size for the playerLabel to prevent it from resizing
         // Use a fixed size for the playerLabel to prevent it from resizing
-        playerLabel = new JLabel(String.format("<html><div width='200'>Current Player: %-10s</div></html>", (game.getPlayer() ? "Bottom" : "Top")));
+        switchPlayerLabel();
         playerLabel.setPreferredSize(new Dimension(200, 40)); // Fixed width, same height
         playerLabel.setMaximumSize(new Dimension(200, 40)); // Ensure it doesn't expand
         controlPanel.add(playerLabel);
@@ -205,6 +196,7 @@ public class MainFrame extends JFrame {
                 5. **Game Board**: Click on the cells to make your move. The goal is to reach the opponent's starting row.
                 6. **Special Cells**: Located at the top and bottom of the board. Clicking them places a piece in the respective row.
                 """);
+        //TODO: more detailed text to explain how the buttons work
         guideText.setEditable(false);
         guideText.setLineWrap(true);
         guideText.setWrapStyleWord(true);
@@ -240,6 +232,8 @@ public class MainFrame extends JFrame {
         messageArea.append(message + "\n"); // Append the message and move to a new line
         messageArea.setCaretPosition(messageArea.getDocument().getLength()); // Scroll to the bottom
     }
-
-    //TODO: use guide button to explain how the buttons work
+    
+    public void switchPlayerLabel() {
+        playerLabel = new JLabel(String.format("<html><div width='200'>Current Player: %-10s</div></html>", (game.getPlayer() ? "Bottom" : "Top")));
+    }
 }

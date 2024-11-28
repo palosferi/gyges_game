@@ -128,10 +128,11 @@ public class Board extends DefaultTableModel {
         }
     }
 
-    public void setAllCellsUnselected(){
+    public void setAllCellsUnselectedAndNonstart(){
         for (int x = 0; x < cols; x++) {
             for (int y = 0; y < rows; y++) {
                 board[x][y].setSelected(false);
+                board[x][y].setStart(false);
             }
         }
     }
@@ -151,7 +152,7 @@ public class Board extends DefaultTableModel {
 
     }
 
-    private void findPositions(Position pos, int depth, List<Position> visited) {
+    public void findPositions(Position pos, int depth, List<Position> visited) {
         visited.add(pos);
         if (depth == 0) {
             board[pos.x()][pos.y()].setSelected(true);
@@ -208,5 +209,29 @@ public class Board extends DefaultTableModel {
     public void setPieceId(int x, int y, int pieceId) {
         Piece piece = new Piece(pieceId);  // Create a new Piece based on the given ID
         board[x][y] = piece;  // Set the piece at the given position
+    }
+
+    public boolean findIfWins(Position pos, int depth, boolean player, List<Position> visited) {
+        visited.add(pos);
+        if (depth == 0) {
+            board[pos.x()][pos.y()].setSelected(true);
+        } else {
+            // Balra
+            if (pos.x() > 0 && !visited.contains(pos.left()) && ( depth == 1 || isCellEmpty(pos.left()))) {
+                findIfWins(pos.left(), depth - 1, player, visited);
+            }
+            // Jobbra
+            if (pos.x() < cols - 1 && !visited.contains(pos.right()) && ( depth == 1 || isCellEmpty(pos.right()))) {
+                findIfWins(pos.right(), depth - 1, player, visited);
+            }
+            // Fel
+            if (pos.y() > 0 && !visited.contains(pos.up()) && ( depth == 1 || isCellEmpty(pos.up()))) {
+                findIfWins(pos.up(), depth - 1, player, visited);
+            }
+            // Le
+            if (pos.y() < rows - 1 && !visited.contains(pos.down()) && ( depth == 1 || isCellEmpty(pos.down()))) {
+                findIfWins(pos.down(), depth - 1, player, visited);
+            }
+        }
     }
 }
