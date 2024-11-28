@@ -8,6 +8,7 @@ public class Piece {
     public Piece(int value) {
         this.value = CellState.fromInt(value);
     }
+
     public Piece() {
         this.value = CellState.EMPTY;
     }
@@ -15,6 +16,7 @@ public class Piece {
     public CellState getState() {
         return value;
     }
+
     public int getValue() {
         return value.getValue();
     }
@@ -26,6 +28,7 @@ public class Piece {
     public String toString() {
         return value + "";
     }
+
     public void setSelected(boolean isSelected) {
         if (isSelected) {
             switch (value) {
@@ -44,20 +47,16 @@ public class Piece {
             }
         } else {
             switch (value) {
-                case SELECTED:
-                case START_EMPTY:
+                case SELECTED, START_EMPTY:
                     value = CellState.EMPTY;
                     break;
-                case SELECTED_ONE:
-                case START_ONE:
+                case SELECTED_ONE, START_ONE:
                     value = CellState.ONE;
                     break;
-                case SELECTED_TWO:
-                case START_TWO:
+                case SELECTED_TWO, START_TWO:
                     value = CellState.TWO;
                     break;
-                case SELECTED_THREE:
-                case START_THREE:
+                case SELECTED_THREE, START_THREE:
                     value = CellState.THREE;
                     break;
             }
@@ -97,5 +96,4 @@ public class Piece {
             }
         }
     }
-
 }

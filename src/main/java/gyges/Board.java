@@ -52,9 +52,18 @@ public class Board extends DefaultTableModel {
 
     public void init() {
         for (int i = 0; i < cols; i++) {
-            board[i][0] = new Piece(1 + i % 3); // Player 1 pieces at the top
-            board[i][5] = new Piece(1 + i % 3); // Player 2 pieces at the top
+            // Set Player 1 pieces at the top (row 0)
+            board[i][0] = new Piece(getPieceValue(i));
+
+            // Set Player 2 pieces at the bottom (row 5)
+            board[i][5] = new Piece(getPieceValue(i));
         }
+    }
+
+    // Helper method to get the piece value in the desired pattern: 1, 2, 3, 3, 2, 1
+    private int getPieceValue(int index) {
+        int[] pattern = {1, 2, 3, 3, 2, 1}; // Pattern for piece values
+        return pattern[index % pattern.length]; // Use modulus to cycle through the pattern
     }
 
     public boolean tryToMovePiece(Position from, Position to) {
@@ -69,9 +78,11 @@ public class Board extends DefaultTableModel {
     public boolean isPositionFinalJump(Position position) {
         return getPieceAt(position).getState() == CellState.SELECTED;
     }
+
     public boolean isCellEmpty(Position position) {
         return getPieceAt(position).getState() == CellState.EMPTY;
     }
+
     public boolean isPositionJumpable(Position position) {
         return getPieceAt(position).getValue() / CellState.COUNT == 1;
     }
@@ -79,9 +90,11 @@ public class Board extends DefaultTableModel {
     public Piece getPieceAt(Position position) {
         return board[position.x()][position.y()];
     }
+
     public Piece getPieceAt(int x, int y) {
         return board[x][y];
     }
+
     public int getActiveRow(boolean player) {
         if (player) {
             for(int y = getRowCount()-1; y > 0; y--) {
@@ -114,6 +127,7 @@ public class Board extends DefaultTableModel {
             }
         }
     }
+
     public void setAllCellsUnselected(){
         for (int x = 0; x < cols; x++) {
             for (int y = 0; y < rows; y++) {
@@ -136,6 +150,7 @@ public class Board extends DefaultTableModel {
         }
 
     }
+
     private void findPositions(Position pos, int depth, List<Position> visited) {
         visited.add(pos);
         if (depth == 0) {
@@ -185,7 +200,6 @@ public class Board extends DefaultTableModel {
         }
     }
 
-
     public int getPieceId(int x, int y) {
         Piece piece = board[x][y];
         return piece.getValue();  // Return the integer value of the piece's state
@@ -195,5 +209,4 @@ public class Board extends DefaultTableModel {
         Piece piece = new Piece(pieceId);  // Create a new Piece based on the given ID
         board[x][y] = piece;  // Set the piece at the given position
     }
-
 }

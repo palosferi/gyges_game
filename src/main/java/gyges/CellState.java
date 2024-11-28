@@ -18,6 +18,7 @@ public enum CellState {
     START_THREE;    // mod 4 == 3
 
     public static final int COUNT = 4;
+
     // Getter for the integer value
     public int getValue() {
         return switch (this) {
@@ -35,10 +36,10 @@ public enum CellState {
             case START_THREE -> 11;
         };
     }
+
     public int getHeight() {
     return getValue() % COUNT;
     }
-
 
     // Method to convert an int to an enum
     public static CellState fromInt(int value) {
@@ -58,9 +59,10 @@ public enum CellState {
             default -> throw new IllegalArgumentException("Invalid value: " + value);
         };
     }
+
     public ImageIcon toIcon() {
         return switch (this) {
-            case EMPTY -> null;
+            case EMPTY, START_EMPTY -> null;
             case ONE ->  new ImageIcon(Objects.requireNonNull(getClass().getResource("/p1.png")));
             case TWO ->  new ImageIcon(Objects.requireNonNull(getClass().getResource("/p2.png")));
             case THREE ->  new ImageIcon(Objects.requireNonNull(getClass().getResource("/p3.png")));
@@ -68,11 +70,9 @@ public enum CellState {
             case SELECTED_ONE ->  new ImageIcon(Objects.requireNonNull(getClass().getResource("/sel_p1.png")));
             case SELECTED_TWO ->  new ImageIcon(Objects.requireNonNull(getClass().getResource("/sel_p2.png")));
             case SELECTED_THREE ->  new ImageIcon(Objects.requireNonNull(getClass().getResource("/sel_p3.png")));
-            case START_EMPTY -> null; //new ImageIcon(Objects.requireNonNull(getClass().getResource("/start_p1.png")));
             case START_ONE ->  new ImageIcon(Objects.requireNonNull(getClass().getResource("/start_p1.png")));
             case START_TWO ->  new ImageIcon(Objects.requireNonNull(getClass().getResource("/start_p2.png")));
             case START_THREE ->  new ImageIcon(Objects.requireNonNull(getClass().getResource("/start_p3.png")));
         };
     }
-
 }
