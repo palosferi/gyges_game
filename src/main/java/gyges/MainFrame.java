@@ -217,14 +217,12 @@ public class MainFrame extends JFrame {
                 game.init(); // Init the game
                 break;
             case SETUP:
-                game.getBoard().setAllCellsUnselectedAndNonstart();
                 table.repaint();
-                actionButton.setText("Revert move");
-                game.setState(PLAYING);
+                actionButton.setText("Undo move");
                 game.run(); // Run the game
                 break;
             case PLAYING:
-                game.revertMove();
+                game.undoMove();
                 break;
         }
     }

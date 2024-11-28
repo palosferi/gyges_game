@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.Stack;
 
 import static gyges.GameState.*;
 
@@ -16,11 +17,12 @@ public class Game {
     private final MainFrame mainFrame;
     private final Board board = new Board();
     private boolean player = true; // Igaz: Alsó játékos van soron, Hamis: Felső játékos van soron
-    private Position selectedClick; // Elős klikk
+    private Position selectedClick; // Első klikk
     private Position nextClick; // Második kattintás
-    private Position lastJumpFromHere;
+    private Position lastJumpFromHere = selectedClick;
     private GameState state;
-    private String defaultFileExtension = ".json";
+    private static final String defaultFileExtension = ".json";
+    private final Stack<Pair<Position, Position>> moveHistory = new Stack<>();
 
     public Game(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
@@ -31,11 +33,11 @@ public class Game {
 
     public void init() {
         board.init();
-        // Itt majd lesznek bábuk rakosgathatóva
     }
 
     public void run() {
-        // Ez igazából nem csinál semmit
+        getBoard().setAllCellsUnselectedAndNonstart();
+        setState(PLAYING);
         player = true;
         selectedClick = null;
         nextClick = null;
@@ -44,7 +46,8 @@ public class Game {
     public void topCellClicked() {
         if(state == PLAYING && player && selectedClick != null && nextClick == null) {
             Piece piece = board.getPieceAt(selectedClick.x(), selectedClick.y());
-            if(piece.isStart() && board.findIfWins(selectedClick, piece.getState().getHeight()-1, player, new LinkedList<>())) {
+            Piece lastJumpPiece = board.getPieceAt(lastJumpFromHere.x(), lastJumpFromHere.y());
+            if(piece.isStart() && board.findIfWins(lastJumpFromHere, lastJumpPiece.getState().getHeight()-1, player, new LinkedList<>())) {
                 gameOver();
             }
         }
@@ -53,7 +56,8 @@ public class Game {
     public void bottomCellClicked() {
         if(state == PLAYING && !player && selectedClick != null && nextClick == null) {
             Piece piece = board.getPieceAt(selectedClick.x(), selectedClick.y());
-            if(piece.isStart() && board.findIfWins(selectedClick, piece.getState().getHeight()-1, player, new LinkedList<>())) {
+            Piece lastJumpPiece = board.getPieceAt(lastJumpFromHere.x(), lastJumpFromHere.y());
+            if(piece.isStart() && board.findIfWins(lastJumpFromHere, lastJumpPiece.getState().getHeight()-1, player, new LinkedList<>())) {
                 gameOver();
             }
         }
@@ -89,7 +93,6 @@ public class Game {
             case PLAYING:
                 // Itt a játék közben van
                 int activeRow = board.getActiveRow(player);
-                // Ha első kattintás, és az aktív sorban katitntunk
                 if((selectedClick != null && selectedClick.equals(new Position(x, y))) || board.getPieceAt(new Position(x, y)).getState() == CellState.EMPTY) {
                     selectedClick = null;
                     nextClick = null;
@@ -97,16 +100,17 @@ public class Game {
                     mainFrame.table.repaint();
                 } else if (y == activeRow && (selectedClick == null || nextClick == null && !board.isPositionJumpable(new Position(x, y)))) {
                     selectedClick = new Position(x, y);
-                    board.setAllCellsUnselectedAndNonstart(); // Minden kiálasztás törlése
+                    board.setAllCellsUnselectedAndNonstart(); // Minden kiválasztás törlése
                     mainFrame.table.repaint();
                     board.exploreMoves(selectedClick); // Léphető pozíciók kiválasztása
                     board.setStartPosition(selectedClick); // Kezdő pozíció beállítása
                 } else if (selectedClick != null && nextClick == null && board.isPositionJumpable(new Position(x, y))) {
                     nextClick = new Position(x, y);
                     if (board.tryToMovePiece(selectedClick, nextClick)) {
+                        moveHistory.push(new Pair<>(selectedClick, nextClick));
                         selectedClick = null;
                         nextClick = null;
-                        board.setAllCellsUnselectedAndNonstart(); // Minden kiálasztás törlése
+                        board.setAllCellsUnselectedAndNonstart(); // Minden kiválasztás törlése
                         mainFrame.table.repaint();
                         player = !player; // játékosváltás
                         mainFrame.updatePlayerLabel(getPlayer());
@@ -115,6 +119,7 @@ public class Game {
                         mainFrame.table.repaint();
                         board.setStartPosition(selectedClick); // Kezdő pozíció beállítása
                         board.exploreMoves(nextClick);
+                        lastJumpFromHere = nextClick;
                         nextClick = null;
                     }
                 }
@@ -208,13 +213,29 @@ public class Game {
         }
     }
 
-    public void revertMove() {
-    //TODO
+    public void undoMove() {
+        if (!moveHistory.isEmpty()) {
+            Pair<Position, Position> lastMove = moveHistory.pop();
+            Position source = lastMove.getKey();
+            Position destination = lastMove.getValue();
+
+            // Undo the move on the board
+            board.swapPieces(destination, source);
+
+            // Reset the player state and update the board
+            player = !player;
+            mainFrame.updatePlayerLabel(getPlayer());
+            mainFrame.table.repaint();
+
+            mainFrame.appendMessage("Move undone.");
+        } else {
+            mainFrame.appendMessage("No moves to undo.");
+        }
     }
 
     public void gameOver() {
         mainFrame.actionButton.setText("New Game");
-        mainFrame.appendMessage("Game over! " + (player? "Player 1 wins!" : "Player 2 wins!"));;
+        mainFrame.appendMessage("Game over! Player " + (player? "1 (bottom) wins!" : "2 (top) wins!"));
         board.setAllCellsUnselectedAndNonstart();
         mainFrame.table.repaint();
         setState(IDLE);

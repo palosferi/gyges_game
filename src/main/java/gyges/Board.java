@@ -217,21 +217,17 @@ public class Board extends DefaultTableModel {
             return true;
         } else {
             // Balra
-            if (pos.x() > 0 && !visited.contains(pos.left()) && ( depth == 1 || isCellEmpty(pos.left()))) {
-                findIfWins(pos.left(), depth - 1, player, visited);
-            }
+            if (pos.x() > 0 && !visited.contains(pos.left()) && isCellEmpty(pos.left()) && findIfWins(pos.left(), depth - 1, player, visited)) return true;
+
             // Jobbra
-            if (pos.x() < cols - 1 && !visited.contains(pos.right()) && ( depth == 1 || isCellEmpty(pos.right()))) {
-                findIfWins(pos.right(), depth - 1, player, visited);
-            }
+            if (pos.x() < cols - 1 && !visited.contains(pos.right()) && isCellEmpty(pos.right()) && findIfWins(pos.right(), depth - 1, player, visited)) return true;
+
             // Fel
-            if (pos.y() > 0 && !visited.contains(pos.up()) && ( depth == 1 || isCellEmpty(pos.up()))) {
-                findIfWins(pos.up(), depth - 1, player, visited);
-            }
+            if (pos.y() > 0 && !visited.contains(pos.up()) && isCellEmpty(pos.up()) && findIfWins(pos.up(), depth - 1, player, visited)) return true;
+
             // Le
-            if (pos.y() < rows - 1 && !visited.contains(pos.down()) && ( depth == 1 || isCellEmpty(pos.down()))) {
-                findIfWins(pos.down(), depth - 1, player, visited);
-            }
+            if (pos.y() < rows - 1 && !visited.contains(pos.down()) && isCellEmpty(pos.down()) && findIfWins(pos.down(), depth - 1, player, visited)) return true;
+
         }
         return false;
     }
