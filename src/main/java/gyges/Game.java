@@ -15,7 +15,7 @@ import static gyges.GameState.*;
 
 public class Game {
     private final MainFrame mainFrame;
-    private final Board board = new Board();
+    private final Board board;
     private boolean player = true; // Igaz: Alsó játékos van soron, Hamis: Felső játékos van soron
     private Position selectedClick; // Első klikk
     private Position nextClick; // Második kattintás
@@ -26,13 +26,10 @@ public class Game {
 
     public Game(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
+        board = new Board(mainFrame.isDarkTheme);
         state = IDLE;
         selectedClick = null;
         nextClick = null;
-    }
-
-    public void init() {
-        board.init();
     }
 
     public void run() {
@@ -124,7 +121,7 @@ public class Game {
                     }
                 }
                 break;
-        }
+        } //TODO: kilökés
     }
 
     public Board getBoard() {

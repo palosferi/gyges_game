@@ -10,28 +10,27 @@ public class MainFrame extends JFrame {
     JTable table;
     static final int CELL_SIZE = 64;
     static final int CELL_COUNT = 6;
+    JButton topSpecialCell;
+    JButton bottomSpecialCell;
+    JLabel messageLabel  = new JLabel("Welcome to Gyges!");
     JLabel playerLabel = new JLabel();
     JButton actionButton;
     JPanel controlPanel;
     JTextArea messageArea;
+    public boolean isDarkTheme = false; //TODO: set to true
 
     public MainFrame() {
         // Set preferred size for the entire window
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setPreferredSize(new Dimension(CELL_COUNT * CELL_SIZE + 300, (CELL_COUNT + 2) * CELL_SIZE + 60));
+        setPreferredSize(new Dimension(CELL_COUNT * CELL_SIZE + 330, (CELL_COUNT + 2) * CELL_SIZE + 60));
+        setResizable(false);
         setLayout(new BorderLayout());
 
         game = new Game(this);
-        game.init();
+        game.getBoard().init();
 
         table = new JTable(game.getBoard());
-        table.setRowHeight(CELL_SIZE);
-        table.setDefaultRenderer(Object.class, new PieceImageRenderer());
-        table.setTableHeader(null);
-        table.addMouseListener(new BoardMouseListener(table, game));
-        table.setCellSelectionEnabled(true); // Enable cell selection
-        table.setRowSelectionAllowed(false); // Disable row selection
-        table.setColumnSelectionAllowed(false); // Optional: Disable column selection
+        initTable(table);
 
         // Wrap the table in a JScrollPane
         JScrollPane tableScrollPane = new JScrollPane(table);
@@ -43,24 +42,20 @@ public class MainFrame extends JFrame {
         messageArea.setEditable(false); // Make it read-only
         messageArea.setLineWrap(true);
         messageArea.setWrapStyleWord(true);
-        initializeComponents(controlPanel);
-
-        // ----------------------------------------------------------------
+        initControlPanel(controlPanel);
 
         JPanel boardPanel = new JPanel();
         boardPanel.setLayout(new BorderLayout());
 
         JPanel topRow = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JButton topSpecialCell = new JButton();
+        topSpecialCell = new JButton();
         topSpecialCell.setPreferredSize(new Dimension(CELL_SIZE, CELL_SIZE));
-        topSpecialCell.setBackground(Color.WHITE);
         topSpecialCell.addActionListener(e -> game.topCellClicked());
         topRow.add(topSpecialCell);
 
         JPanel bottomRow = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JButton bottomSpecialCell = new JButton();
+        bottomSpecialCell = new JButton();
         bottomSpecialCell.setPreferredSize(new Dimension(CELL_SIZE, CELL_SIZE));
-        bottomSpecialCell.setBackground(Color.WHITE);
         bottomSpecialCell.addActionListener(e -> game.bottomCellClicked());
         bottomRow.add(bottomSpecialCell);
 
@@ -71,15 +66,26 @@ public class MainFrame extends JFrame {
         add(boardPanel, BorderLayout.CENTER);
         add(controlPanel, BorderLayout.EAST);
 
+        setDefaultTheme();
+
         // Call pack at the end to set the correct size
         pack();
         setVisible(true);
     }
 
-    private void initializeComponents(JPanel controlPanel) {
+    private void initTable(JTable table) {
+        table.setRowHeight(CELL_SIZE);
+        table.setDefaultRenderer(Object.class, new PieceImageRenderer());
+        table.setTableHeader(null);
+        table.addMouseListener(new BoardMouseListener(table, game));
+        table.setCellSelectionEnabled(true); // Enable cell selection
+        table.setRowSelectionAllowed(false); // Disable row selection
+        table.setColumnSelectionAllowed(false); // Optional: Disable column selection
+    }
+
+    private void initControlPanel(JPanel controlPanel) {
         controlPanel.add(Box.createVerticalStrut(20)); // Blank space
 
-        JLabel messageLabel = new JLabel("Welcome to Gyges!");
         controlPanel.add(messageLabel);
 
         controlPanel.add(Box.createVerticalStrut(20)); // Blank space
@@ -129,16 +135,65 @@ public class MainFrame extends JFrame {
         guideButton.addActionListener(e -> showUserGuideDialog());
         buttonPanel.add(guideButton);
 
+        JButton themeButton = new JButton(String.format("<html><div width='72'>%-10s</div></html>", (isDarkTheme ? "Light Theme" : "Dark Theme")));
+        themeButton.addActionListener(e -> toggleTheme(themeButton));
+        buttonPanel.add(themeButton);
+
+        // Create the "Exit" button
+        JButton exitButton = new JButton("Exit");
+        exitButton.addActionListener(e -> System.exit(0)); // Closes the application
+        buttonPanel.add(exitButton);
+
         // Add the button panel to the control panel
         controlPanel.add(buttonPanel);
 
         // Create a panel for "Made by palosferi" and set it to be aligned to the bottom right
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JLabel madeByLabel = new JLabel("//made by _palosferi_//");
+        JLabel madeByLabel = new JLabel("/// made by _palosferi_ ///");
         footerPanel.add(madeByLabel);
 
         // Add the footerPanel to the bottom of the controlPanel
         controlPanel.add(footerPanel, BorderLayout.SOUTH);
+    }
+
+    private void setDefaultTheme() {
+        //TODO
+    }
+
+    private void toggleTheme(JButton themeButton) {
+        isDarkTheme = !isDarkTheme;
+
+        // Define dark and light theme colors
+        Color tableColor = isDarkTheme ? Color.BLACK : Color.WHITE;
+        Color backgroundColor = isDarkTheme ? Color.BLACK : Color.LIGHT_GRAY;
+        Color foregroundColor = isDarkTheme ? Color.WHITE : Color.BLACK;
+
+        topSpecialCell.setBackground(backgroundColor);
+        bottomSpecialCell.setBackground(backgroundColor);
+
+        // Apply theme to main frame and control panel
+        getContentPane().setBackground(backgroundColor);
+        controlPanel.setBackground(backgroundColor);
+        controlPanel.setForeground(foregroundColor);
+
+        // Apply theme to other components
+        table.setBackground(tableColor);
+        table.setForeground(tableColor);
+
+        messageLabel.setBackground(backgroundColor);
+
+        messageArea.setBackground(backgroundColor);
+        messageArea.setForeground(foregroundColor);
+
+        playerLabel.setBackground(backgroundColor);
+        playerLabel.setForeground(foregroundColor);
+
+        // Change button text
+        themeButton.setText(String.format("<html><div width='72'>%-10s</div></html>", (isDarkTheme ? "Light Theme" : "Dark Theme")));
+        themeButton.repaint();
+
+        // Repaint to apply changes
+        repaint();
     }
 
 
@@ -214,7 +269,7 @@ public class MainFrame extends JFrame {
             case IDLE:
                 actionButton.setText("Start Game");
                 game.setState(SETUP);
-                game.init(); // Init the game
+                game.getBoard().init(); // Init the game
                 break;
             case SETUP:
                 table.repaint();

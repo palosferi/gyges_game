@@ -21,8 +21,8 @@ public class Piece {
         return value.getValue();
     }
 
-    public ImageIcon toImage() {
-        return value.toIcon();
+    public ImageIcon toImage(boolean isDarkMode) {
+        return value.toIcon(isDarkMode);
     }
 
     public String toString() {

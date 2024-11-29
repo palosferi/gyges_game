@@ -9,10 +9,12 @@ public class Board extends DefaultTableModel {
     private final Piece[][] board;
     private final int rows;
     private final int cols;
+    boolean isDarkMode;
 
-    public Board() {
+    public Board(boolean isDMode) {
         this.rows = 6;
         this.cols = 6;
+        this.isDarkMode = isDMode; // Enable dark mode if true, otherwise light mode
         this.board = new Piece[cols][rows];
         for (int x = 0; x < rows; x++) {
             for (int y = 0; y < cols; y++) {
@@ -33,7 +35,7 @@ public class Board extends DefaultTableModel {
 
     @Override
     public Object getValueAt(int row, int column) {
-        return board[column][row].toImage();
+        return board[column][row].toImage(isDarkMode);
     }
 
     @Override
@@ -173,7 +175,7 @@ public class Board extends DefaultTableModel {
             if (pos.y() < rows - 1 && !visited.contains(pos.down()) && ( depth == 1 || isCellEmpty(pos.down()))) {
                 findPositions(pos.down(), depth - 1, visited);
             }
-        }
+        } //TODO: fix findpos
     }
 
     public void setStartPosition(Position selectedClick) {

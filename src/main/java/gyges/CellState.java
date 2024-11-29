@@ -60,19 +60,19 @@ public enum CellState {
         };
     }
 
-    public ImageIcon toIcon() {
+    public ImageIcon toIcon(boolean isDarkMode) {
         return switch (this) {
             case EMPTY, START_EMPTY -> null;
-            case ONE ->  new ImageIcon(Objects.requireNonNull(getClass().getResource("/p1.png")));
-            case TWO ->  new ImageIcon(Objects.requireNonNull(getClass().getResource("/p2.png")));
-            case THREE ->  new ImageIcon(Objects.requireNonNull(getClass().getResource("/p3.png")));
-            case SELECTED -> new ImageIcon(Objects.requireNonNull(getClass().getResource("/sel.png")));
-            case SELECTED_ONE ->  new ImageIcon(Objects.requireNonNull(getClass().getResource("/sel_p1.png")));
-            case SELECTED_TWO ->  new ImageIcon(Objects.requireNonNull(getClass().getResource("/sel_p2.png")));
-            case SELECTED_THREE ->  new ImageIcon(Objects.requireNonNull(getClass().getResource("/sel_p3.png")));
-            case START_ONE ->  new ImageIcon(Objects.requireNonNull(getClass().getResource("/start_p1.png")));
-            case START_TWO ->  new ImageIcon(Objects.requireNonNull(getClass().getResource("/start_p2.png")));
-            case START_THREE ->  new ImageIcon(Objects.requireNonNull(getClass().getResource("/start_p3.png")));
+            case ONE ->  new ImageIcon(Objects.requireNonNull(getClass().getResource(isDarkMode ? "/dark_p1.png" : "/light_p1.png")));
+            case TWO ->  new ImageIcon(Objects.requireNonNull(getClass().getResource(isDarkMode ? "/dark_p2.png" : "/light_p2.png")));
+            case THREE ->  new ImageIcon(Objects.requireNonNull(getClass().getResource(isDarkMode ? "/dark_p3.png" : "/light_p3.png")));
+            case SELECTED -> new ImageIcon(Objects.requireNonNull(getClass().getResource(isDarkMode ? "/dark_sel.png" : "/light_sel.png")));
+            case SELECTED_ONE ->  new ImageIcon(Objects.requireNonNull(getClass().getResource(isDarkMode ? "/dark_sel_p1.png" : "/light_sel_p1.png")));
+            case SELECTED_TWO ->  new ImageIcon(Objects.requireNonNull(getClass().getResource(isDarkMode ? "/dark_sel_p2.png" : "/light_sel_p2.png")));
+            case SELECTED_THREE ->  new ImageIcon(Objects.requireNonNull(getClass().getResource(isDarkMode ? "/dark_sel_p3.png" : "/light_sel_p3.png")));
+            case START_ONE ->  new ImageIcon(Objects.requireNonNull(getClass().getResource(isDarkMode ? "/dark_start_p1.png" : "/light_start_p1.png")));
+            case START_TWO ->  new ImageIcon(Objects.requireNonNull(getClass().getResource(isDarkMode ? "/dark_start_p2.png" : "/light_start_p2.png")));
+            case START_THREE ->  new ImageIcon(Objects.requireNonNull(getClass().getResource(isDarkMode ? "/dark_start_p3.png" : "/light_start_p3.png")));
         };
     }
 }
