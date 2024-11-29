@@ -169,7 +169,7 @@ public class Game {
         } else {
             mainFrame.appendMessage("Save operation cancelled by user.");
         }
-    }
+    } //TODO: save movehistory, ?state?, board.isDarkMode
 
     public void loadGameState() {
         JFileChooser fileChooser = new JFileChooser(new File("."));
@@ -208,7 +208,7 @@ public class Game {
         } else {
             mainFrame.appendMessage("Load operation cancelled by user.");
         }
-    }
+    }  //TODO: load movehistory, ?state?, board.isDarkMode
 
     public void undoMove() {
         if (!moveHistory.isEmpty()) {

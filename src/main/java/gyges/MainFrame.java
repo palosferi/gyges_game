@@ -17,7 +17,7 @@ public class MainFrame extends JFrame {
     JButton actionButton;
     JPanel controlPanel;
     JTextArea messageArea;
-    public boolean isDarkTheme = false; //TODO: set to true
+    public boolean isDarkTheme = true;
 
     public MainFrame() {
         // Set preferred size for the entire window
@@ -157,45 +157,88 @@ public class MainFrame extends JFrame {
     }
 
     private void setDefaultTheme() {
-        //TODO
+        // Default to dark theme
+        isDarkTheme = true;
+        game.getBoard().isDarkMode = true;
+
+        // Dark mode colors
+        Color backgroundColor = new Color(18, 18, 18); // Board background
+        Color gridColor = new Color(56, 56, 56); // Grid lines
+        Color textColor = new Color(255, 255, 255); // Text and icons
+
+        // Set the table and other components
+        updateTheme(backgroundColor, gridColor, textColor);
     }
 
     private void toggleTheme(JButton themeButton) {
         isDarkTheme = !isDarkTheme;
+        game.getBoard().isDarkMode = isDarkTheme;
 
-        // Define dark and light theme colors
-        Color tableColor = isDarkTheme ? Color.BLACK : Color.WHITE;
-        Color backgroundColor = isDarkTheme ? Color.BLACK : Color.LIGHT_GRAY;
-        Color foregroundColor = isDarkTheme ? Color.WHITE : Color.BLACK;
+        // Colors for light and dark mode
+        Color backgroundColor = isDarkTheme ? new Color(18, 18, 18) : new Color(245, 245, 245);
+        Color gridColor = isDarkTheme ? new Color(56, 56, 56) : new Color(204, 204, 204);
+        Color textColor = isDarkTheme ? new Color(255, 255, 255) : new Color(0, 0, 0);
 
-        topSpecialCell.setBackground(backgroundColor);
-        bottomSpecialCell.setBackground(backgroundColor);
+        // Update the theme of components
+        updateTheme(backgroundColor, gridColor, textColor);
 
-        // Apply theme to main frame and control panel
-        getContentPane().setBackground(backgroundColor);
-        controlPanel.setBackground(backgroundColor);
-        controlPanel.setForeground(foregroundColor);
-
-        // Apply theme to other components
-        table.setBackground(tableColor);
-        table.setForeground(tableColor);
-
-        messageLabel.setBackground(backgroundColor);
-
-        messageArea.setBackground(backgroundColor);
-        messageArea.setForeground(foregroundColor);
-
-        playerLabel.setBackground(backgroundColor);
-        playerLabel.setForeground(foregroundColor);
-
-        // Change button text
+        // Update the button label based on the theme
         themeButton.setText(String.format("<html><div width='72'>%-10s</div></html>", (isDarkTheme ? "Light Theme" : "Dark Theme")));
-        themeButton.repaint();
 
-        // Repaint to apply changes
+        // Repaint the frame to apply changes
         repaint();
     }
 
+    private void updateTheme(Color backgroundColor, Color gridColor, Color textColor) {
+        // Set the background color and text color for the entire board and UI components
+        controlPanel.setBackground(backgroundColor);
+        controlPanel.setForeground(textColor);
+        messageArea.setBackground(backgroundColor);
+        messageArea.setForeground(textColor);
+        messageLabel.setForeground(textColor);
+        playerLabel.setForeground(textColor);
+
+        // Set the board table background and foreground colors
+        table.setBackground(backgroundColor);
+        table.setForeground(textColor);
+
+        // Check if the table has a header and set its background color
+        if (table.getTableHeader() != null) {
+            table.getTableHeader().setBackground(gridColor);
+        }
+
+        // Update the special cells' backgrounds
+        topSpecialCell.setBackground(backgroundColor);
+        bottomSpecialCell.setBackground(backgroundColor);
+
+        // Update component backgrounds recursively
+        updateComponentBackgrounds(getContentPane(), backgroundColor, textColor);
+
+        // Update the piece icons
+        updatePiecePics();
+    }
+
+    private void updateComponentBackgrounds(Component component, Color backgroundColor, Color foregroundColor) {
+        component.setBackground(backgroundColor);
+        if (component instanceof JComponent) {
+            ((JComponent) component).setForeground(foregroundColor);
+        }
+
+        if (component instanceof Container) {
+            for (Component child : ((Container) component).getComponents()) {
+                updateComponentBackgrounds(child, backgroundColor, foregroundColor);
+            }
+        }
+    }
+
+    private void updatePiecePics() {
+        for (int i = 0; i < CELL_COUNT; i++) {
+            for (int j = 0; j < CELL_COUNT; j++) {
+                game.getBoard().getPieceAt(i, j).toImage(isDarkTheme);
+            }
+        }
+        table.repaint();
+    }
 
     private void showRulesDialog() {
         // Create a dialog
