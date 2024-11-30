@@ -99,7 +99,7 @@ public class Game {
                     selectedClick = new Position(x, y);
                     board.setAllCellsUnselectedAndNonstart(); // Minden kiválasztás törlése
                     mainFrame.table.repaint();
-                    board.exploreMoves(selectedClick); // Léphető pozíciók kiválasztása
+                    board.exploreMoves(selectedClick, true); // Léphető pozíciók kiválasztása
                     board.setStartPosition(selectedClick); // Kezdő pozíció beállítása
                 } else if (selectedClick != null && nextClick == null && board.isPositionJumpable(new Position(x, y))) {
                     nextClick = new Position(x, y);
@@ -115,7 +115,7 @@ public class Game {
                         board.setAllCellsUnselectedAndNonstart(); // Minden kiválasztás törlése
                         mainFrame.table.repaint();
                         board.setStartPosition(selectedClick); // Kezdő pozíció beállítása
-                        board.exploreMoves(nextClick);
+                        board.exploreMoves(nextClick, true);
                         lastJumpFromHere = nextClick;
                         nextClick = null;
                     }

@@ -360,4 +360,4 @@ public class MainFrame extends JFrame {
         playerLabel.setText(playerText);
     }
 
-}
+} //TODO: tests
