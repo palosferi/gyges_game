@@ -87,7 +87,7 @@ public class Board extends DefaultTableModel {
     }
 
     public boolean isCellEmpty(Position position) {
-        return getPieceAt(position).getState() == CellState.EMPTY;
+        return (getPieceAt(position).getState().getHeight() == 0);
     }
 
     public boolean isPositionJumpable(Position position) {
@@ -159,28 +159,29 @@ public class Board extends DefaultTableModel {
 
     }
 
-    public void findPositions(Position pos, int depth, List<Position> visited, Position lastMove) {
+    public boolean findPositions(Position pos, int depth, List<Position> visited, Position lastMove) {
         visited.add(pos);
         if (depth == 0) {
             board[pos.x()][pos.y()].setSelected(true);
-        } else {
-            // Balra
-            if (pos.x() > 0 && !lastMove.equals(new Position(1, 0)) && (depth == 1 && !visited.contains(pos.left())) || isCellEmpty(pos.left())) {
-                findPositions(pos.left(), depth - 1, visited, new Position(-1, 0));
-            }
-            // Jobbra
-            if (pos.x() < cols - 1 && !lastMove.equals(new Position(-1, 0)) && ((depth == 1 && !visited.contains(pos.right())) || isCellEmpty(pos.right()))) {
-                findPositions(pos.right(), depth - 1, visited, new Position(1, 0));
-            }
-            // Fel
-            if (pos.y() > 0 && !lastMove.equals(new Position(0, -1)) && ((depth == 1 && !visited.contains(pos.up())) || isCellEmpty(pos.up()))) {
-                findPositions(pos.up(), depth - 1, visited, new Position(0, 1));
-            }
-            // Le
-            if (pos.y() < rows - 1 && !lastMove.equals(new Position(0, 1)) && ((depth == 1  && !visited.contains(pos.down())) || isCellEmpty(pos.down()))) {
-                findPositions(pos.down(), depth - 1, visited, new Position(0, -1));
-            }
+            return true;
         }
+        // Balra
+        if (pos.x() > 0 && lastMove.x()!=1 && ((depth == 1 && !visited.contains(pos.left())) || isCellEmpty(pos.left()))) {
+            findPositions(pos.left(), depth - 1, visited, new Position(-1, 0));
+        }
+        // Jobbra
+        if (pos.x() < cols - 1 && lastMove.x()!=-1 && ((depth == 1 && !visited.contains(pos.right())) || isCellEmpty(pos.right()))) {
+            findPositions(pos.right(), depth - 1, visited, new Position(1, 0));
+        }
+        // Fel
+        if (pos.y() > 0 && lastMove.y()!=-1 && ((depth == 1 && !visited.contains(pos.up())) || isCellEmpty(pos.up()))) {
+            findPositions(pos.up(), depth - 1, visited, new Position(0, 1));
+        }
+        // Le
+        if (pos.y() < rows - 1 && lastMove.y()!=1 && ((depth == 1  && !visited.contains(pos.down())) || isCellEmpty(pos.down()))) {
+            findPositions(pos.down(), depth - 1, visited, new Position(0, -1));
+        }
+        return false;
     }
 
     public void setStartPosition(Position selectedClick) {
@@ -237,5 +238,5 @@ public class Board extends DefaultTableModel {
 
         }
         return false;
-    }
+    } //TODO: wins
 }
