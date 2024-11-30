@@ -44,7 +44,7 @@ public class Game {
         if(state == PLAYING && player && selectedClick != null && nextClick == null) {
             Piece piece = board.getPieceAt(selectedClick.x(), selectedClick.y());
             Piece lastJumpPiece = board.getPieceAt(lastJumpFromHere.x(), lastJumpFromHere.y());
-            if(piece.isStart() && board.findIfWins(lastJumpFromHere, lastJumpPiece.getState().getHeight()-1, player, new LinkedList<>())) {
+            if(piece.isStart() && board.findIfWins(lastJumpFromHere, lastJumpPiece.getState().getHeight()-1, player, new LinkedList<>(), new Position(0, 0))) {
                 gameOver();
             }
         }
@@ -54,7 +54,7 @@ public class Game {
         if(state == PLAYING && !player && selectedClick != null && nextClick == null) {
             Piece piece = board.getPieceAt(selectedClick.x(), selectedClick.y());
             Piece lastJumpPiece = board.getPieceAt(lastJumpFromHere.x(), lastJumpFromHere.y());
-            if(piece.isStart() && board.findIfWins(lastJumpFromHere, lastJumpPiece.getState().getHeight()-1, player, new LinkedList<>())) {
+            if(piece.isStart() && board.findIfWins(lastJumpFromHere, lastJumpPiece.getState().getHeight()-1, player, new LinkedList<>(), new Position(0, 0))) {
                 gameOver();
             }
         }
@@ -141,6 +141,14 @@ public class Game {
     }
 
     public void saveGameState() {
+        if (state == SETUP) {
+            mainFrame.appendMessage("Start the game first.");
+            return;
+        } else if (state == IDLE) {
+            mainFrame.appendMessage("No game to save. Start a new game first.");
+            return;
+        }
+
         JFileChooser fileChooser = new JFileChooser(new File("."));
         fileChooser.setFileFilter(new FileNameExtensionFilter("JSON Files", "json")); // Restrict to JSON files
 
@@ -155,7 +163,12 @@ public class Game {
             }
 
             try {
-                GameStateData gameStateData = new GameStateData(board.getBoardState(), player);
+                GameStateData gameStateData = new GameStateData(
+                        board.getBoardState(),
+                        player,
+                        moveHistory,
+                        board.isDarkMode
+                );
                 Gson gson = new Gson();
                 FileWriter fileWriter = new FileWriter(selectedFile);
                 gson.toJson(gameStateData, fileWriter);
@@ -169,7 +182,7 @@ public class Game {
         } else {
             mainFrame.appendMessage("Save operation cancelled by user.");
         }
-    } //TODO: save movehistory, ?state?, board.isDarkMode
+    }
 
     public void loadGameState() {
         JFileChooser fileChooser = new JFileChooser(new File("."));
@@ -191,9 +204,15 @@ public class Game {
                     // Apply the loaded state
                     board.setBoardState(gameStateData.getBoardState());
                     player = gameStateData.isCurrentPlayer();
+                    moveHistory.clear();
+                    moveHistory.addAll(gameStateData.getMoveHistory());
+                    board.isDarkMode = gameStateData.isDarkMode();
+                    mainFrame.isDarkTheme = !board.isDarkMode;
+                    mainFrame.toggleTheme(mainFrame.themeButton);
                     mainFrame.updatePlayerLabel(getPlayer());
-                    mainFrame.table.revalidate();
-                    mainFrame.table.repaint();
+                    state = PLAYING;
+                    mainFrame.actionButton.setText("Undo Move");
+                    mainFrame.themeButton.setText(String.format("<html><div width='72'>%-10s</div></html>", (board.isDarkMode ? "Light Theme" : "Dark Theme")));
 
                     mainFrame.appendMessage("Game loaded from: " + selectedFile.getAbsolutePath());
                 } catch (IOException e) {
@@ -208,7 +227,7 @@ public class Game {
         } else {
             mainFrame.appendMessage("Load operation cancelled by user.");
         }
-    }  //TODO: load movehistory, ?state?, board.isDarkMode
+    }
 
     public void undoMove() {
         if (!moveHistory.isEmpty()) {
@@ -236,5 +255,7 @@ public class Game {
         board.setAllCellsUnselectedAndNonstart();
         mainFrame.table.repaint();
         setState(IDLE);
+        selectedClick = null;
+        nextClick = null;
     }
 }

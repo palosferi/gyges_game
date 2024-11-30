@@ -59,6 +59,11 @@ public class Board extends DefaultTableModel {
 
             // Set Player 2 pieces at the bottom (row 5)
             board[i][5] = new Piece(getPieceValue(i));
+
+            for (int j = 1; j < 5; j++) {
+                // Set empty pieces in between Player 1 and Player 2
+                board[i][j] = new Piece();
+            }
         }
     }
 
@@ -149,33 +154,33 @@ public class Board extends DefaultTableModel {
         CellState cell = board[pos.x()][pos.y()].getState();
         if (cell.getHeight() != 0) {
             // Minden elérhető szabályos moveot selectiddé teszünk
-            findPositions(pos, cell.getHeight(), new LinkedList<>());
+            findPositions(pos, cell.getHeight(), new LinkedList<>(), new Position(0, 0));
         }
 
     }
 
-    public void findPositions(Position pos, int depth, List<Position> visited) {
+    public void findPositions(Position pos, int depth, List<Position> visited, Position lastMove) {
         visited.add(pos);
         if (depth == 0) {
             board[pos.x()][pos.y()].setSelected(true);
         } else {
             // Balra
-            if (pos.x() > 0 && !visited.contains(pos.left()) && ( depth == 1 || isCellEmpty(pos.left()))) {
-                findPositions(pos.left(), depth - 1, visited);
+            if (pos.x() > 0 && !lastMove.equals(new Position(1, 0)) && (depth == 1 && !visited.contains(pos.left())) || isCellEmpty(pos.left())) {
+                findPositions(pos.left(), depth - 1, visited, new Position(-1, 0));
             }
             // Jobbra
-            if (pos.x() < cols - 1 && !visited.contains(pos.right()) && ( depth == 1 || isCellEmpty(pos.right()))) {
-                findPositions(pos.right(), depth - 1, visited);
+            if (pos.x() < cols - 1 && !lastMove.equals(new Position(-1, 0)) && ((depth == 1 && !visited.contains(pos.right())) || isCellEmpty(pos.right()))) {
+                findPositions(pos.right(), depth - 1, visited, new Position(1, 0));
             }
             // Fel
-            if (pos.y() > 0 && !visited.contains(pos.up()) && ( depth == 1 || isCellEmpty(pos.up()))) {
-                findPositions(pos.up(), depth - 1, visited);
+            if (pos.y() > 0 && !lastMove.equals(new Position(0, -1)) && ((depth == 1 && !visited.contains(pos.up())) || isCellEmpty(pos.up()))) {
+                findPositions(pos.up(), depth - 1, visited, new Position(0, 1));
             }
             // Le
-            if (pos.y() < rows - 1 && !visited.contains(pos.down()) && ( depth == 1 || isCellEmpty(pos.down()))) {
-                findPositions(pos.down(), depth - 1, visited);
+            if (pos.y() < rows - 1 && !lastMove.equals(new Position(0, 1)) && ((depth == 1  && !visited.contains(pos.down())) || isCellEmpty(pos.down()))) {
+                findPositions(pos.down(), depth - 1, visited, new Position(0, -1));
             }
-        } //TODO: fix findpos
+        }
     }
 
     public void setStartPosition(Position selectedClick) {
@@ -213,22 +218,22 @@ public class Board extends DefaultTableModel {
         board[x][y] = piece;  // Set the piece at the given position
     }
 
-    public boolean findIfWins(Position pos, int depth, boolean player, List<Position> visited) {
+    public boolean findIfWins(Position pos, int depth, boolean player, List<Position> visited, Position lastMove) {
         visited.add(pos);
         if (depth == 0 && pos.y() == (player? 0 : 5)) {
             return true;
         } else {
             // Balra
-            if (pos.x() > 0 && !visited.contains(pos.left()) && isCellEmpty(pos.left()) && findIfWins(pos.left(), depth - 1, player, visited)) return true;
+            if (pos.x() > 0 && !lastMove.equals(new Position(1, 0)) && isCellEmpty(pos.left()) && findIfWins(pos.left(), depth - 1, player, visited, new Position(-1, 0))) return true;
 
             // Jobbra
-            if (pos.x() < cols - 1 && !visited.contains(pos.right()) && isCellEmpty(pos.right()) && findIfWins(pos.right(), depth - 1, player, visited)) return true;
+            if (pos.x() < cols - 1 && !lastMove.equals(new Position(-1, 0)) && isCellEmpty(pos.right()) && findIfWins(pos.right(), depth - 1, player, visited, new Position(1, 0))) return true;
 
             // Fel
-            if (pos.y() > 0 && !visited.contains(pos.up()) && isCellEmpty(pos.up()) && findIfWins(pos.up(), depth - 1, player, visited)) return true;
+            if (pos.y() > 0 && !lastMove.equals(new Position(0, -1)) && isCellEmpty(pos.up()) && findIfWins(pos.up(), depth - 1, player, visited, new Position(0, 1))) return true;
 
             // Le
-            if (pos.y() < rows - 1 && !visited.contains(pos.down()) && isCellEmpty(pos.down()) && findIfWins(pos.down(), depth - 1, player, visited)) return true;
+            if (pos.y() < rows - 1 && !lastMove.equals(new Position(0, 1)) && isCellEmpty(pos.down()) && findIfWins(pos.down(), depth - 1, player, visited, new Position(0, -1))) return true;
 
         }
         return false;

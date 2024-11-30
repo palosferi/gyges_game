@@ -17,7 +17,8 @@ public class MainFrame extends JFrame {
     JButton actionButton;
     JPanel controlPanel;
     JTextArea messageArea;
-    public boolean isDarkTheme = true;
+    JButton themeButton;
+    public boolean isDarkTheme = false;
 
     public MainFrame() {
         // Set preferred size for the entire window
@@ -66,7 +67,7 @@ public class MainFrame extends JFrame {
         add(boardPanel, BorderLayout.CENTER);
         add(controlPanel, BorderLayout.EAST);
 
-        setDefaultTheme();
+        toggleTheme(themeButton);
 
         // Call pack at the end to set the correct size
         pack();
@@ -135,7 +136,7 @@ public class MainFrame extends JFrame {
         guideButton.addActionListener(e -> showUserGuideDialog());
         buttonPanel.add(guideButton);
 
-        JButton themeButton = new JButton(String.format("<html><div width='72'>%-10s</div></html>", (isDarkTheme ? "Light Theme" : "Dark Theme")));
+        themeButton = new JButton(String.format("<html><div width='72'>%-10s</div></html>", (isDarkTheme ? "Light Theme" : "Dark Theme")));
         themeButton.addActionListener(e -> toggleTheme(themeButton));
         buttonPanel.add(themeButton);
 
@@ -156,21 +157,7 @@ public class MainFrame extends JFrame {
         controlPanel.add(footerPanel, BorderLayout.SOUTH);
     }
 
-    private void setDefaultTheme() {
-        // Default to dark theme
-        isDarkTheme = true;
-        game.getBoard().isDarkMode = true;
-
-        // Dark mode colors
-        Color backgroundColor = new Color(18, 18, 18); // Board background
-        Color gridColor = new Color(56, 56, 56); // Grid lines
-        Color textColor = new Color(255, 255, 255); // Text and icons
-
-        // Set the table and other components
-        updateTheme(backgroundColor, gridColor, textColor);
-    }
-
-    private void toggleTheme(JButton themeButton) {
+    public void toggleTheme(JButton themeButton) {
         isDarkTheme = !isDarkTheme;
         game.getBoard().isDarkMode = isDarkTheme;
 
@@ -184,6 +171,9 @@ public class MainFrame extends JFrame {
 
         // Update the button label based on the theme
         themeButton.setText(String.format("<html><div width='72'>%-10s</div></html>", (isDarkTheme ? "Light Theme" : "Dark Theme")));
+
+        // Update the pop-up dialogs' themes
+        updatePopupTheme(backgroundColor, textColor);
 
         // Repaint the frame to apply changes
         repaint();
@@ -218,6 +208,28 @@ public class MainFrame extends JFrame {
         updatePiecePics();
     }
 
+    private void updatePopupTheme(Color backgroundColor, Color textColor) {
+        // Update the rules dialog
+        JDialog rulesDialog = new JDialog();
+        rulesDialog.getContentPane().setBackground(backgroundColor);
+        for (Component comp : rulesDialog.getContentPane().getComponents()) {
+            if (comp instanceof JComponent) {
+                comp.setForeground(textColor);
+                comp.setBackground(backgroundColor);
+            }
+        }
+
+        // Update the user guide dialog
+        JDialog guideDialog = new JDialog();
+        guideDialog.getContentPane().setBackground(backgroundColor);
+        for (Component comp : guideDialog.getContentPane().getComponents()) {
+            if (comp instanceof JComponent) {
+                comp.setForeground(textColor);
+                comp.setBackground(backgroundColor);
+            }
+        }
+    }
+
     private void updateComponentBackgrounds(Component component, Color backgroundColor, Color foregroundColor) {
         component.setBackground(backgroundColor);
         if (component instanceof JComponent) {
@@ -241,12 +253,11 @@ public class MainFrame extends JFrame {
     }
 
     private void showRulesDialog() {
-        // Create a dialog
         JDialog rulesDialog = new JDialog(this, "Rules of Gyges", true);
         rulesDialog.setSize(400, 300);
-        rulesDialog.setLocationRelativeTo(this); // Center the dialog
+        rulesDialog.setLocationRelativeTo(this);
 
-        // Create a text area to display the rules
+        // Create a text area with the rules
         JTextArea rulesText = new JTextArea();
         rulesText.setText("""
         Rules of Gyges:
@@ -257,22 +268,28 @@ public class MainFrame extends JFrame {
         4. A piece can jump over other pieces.
         5. The goal is to move a piece to the opponent's starting row.
         
-        """);
-        //TODO: More detailed rules
+        """); //TODO: detailed rules
         rulesText.setEditable(false);
         rulesText.setLineWrap(true);
         rulesText.setWrapStyleWord(true);
 
-        // Add the text area to a scroll pane in case the rules are long
+        // Apply the current theme
+        Color backgroundColor = isDarkTheme ? new Color(18, 18, 18) : new Color(245, 245, 245);
+        Color textColor = isDarkTheme ? new Color(255, 255, 255) : new Color(0, 0, 0);
+        rulesText.setBackground(backgroundColor);
+        rulesText.setForeground(textColor);
+
+        // Add the text area to a scroll pane
         JScrollPane scrollPane = new JScrollPane(rulesText);
         rulesDialog.add(scrollPane);
 
         // Add a "Close" button
         JButton closeButton = new JButton("Close");
         closeButton.addActionListener(e -> rulesDialog.dispose());
+        closeButton.setBackground(backgroundColor);
+        closeButton.setForeground(textColor);
         rulesDialog.add(closeButton, BorderLayout.SOUTH);
 
-        // Show the dialog
         rulesDialog.setVisible(true);
     }
 
@@ -297,11 +314,19 @@ public class MainFrame extends JFrame {
         guideText.setLineWrap(true);
         guideText.setWrapStyleWord(true);
 
+        // Apply the current theme
+        Color backgroundColor = isDarkTheme ? new Color(18, 18, 18) : new Color(245, 245, 245);
+        Color textColor = isDarkTheme ? new Color(255, 255, 255) : new Color(0, 0, 0);
+        guideText.setBackground(backgroundColor);
+        guideText.setForeground(textColor);
+
         JScrollPane scrollPane = new JScrollPane(guideText);
         guideDialog.add(scrollPane);
 
         JButton closeButton = new JButton("Close");
         closeButton.addActionListener(e -> guideDialog.dispose());
+        closeButton.setBackground(backgroundColor);
+        closeButton.setForeground(textColor);
         guideDialog.add(closeButton, BorderLayout.SOUTH);
 
         guideDialog.setVisible(true);
@@ -313,6 +338,7 @@ public class MainFrame extends JFrame {
                 actionButton.setText("Start Game");
                 game.setState(SETUP);
                 game.getBoard().init(); // Init the game
+                table.repaint();
                 break;
             case SETUP:
                 table.repaint();
