@@ -60,68 +60,85 @@ public class Game {
         }
     }
 
-    public void clicked(int x, int y) {
+    public void leftClicked(int x, int y) {
         switch (state) {
             case IDLE:
-                // Itt nem csinálunk semmit
+                // No action on IDLE
                 board.setAllCellsUnselectedAndNonstart();
                 mainFrame.table.repaint();
                 break;
             case SETUP:
-                // Itt a bábúk rakottak legyenek
-
-                // Még nincs kijelölve egy se -> első klikk
+                // Set up pieces
                 if (selectedClick == null) {
                     selectedClick = new Position(x, y);
                     board.exploreSwappables(selectedClick);
-                }
-                // Második klikk
-                else if (nextClick == null) {
+                } else if (nextClick == null && selectedClick.y() == y) {
                     nextClick = new Position(x, y);
-                    if((selectedClick.y() == 0 || selectedClick.y() == 5) && (nextClick.y() == 0 || nextClick.y() == 5)) {
+                    if ((selectedClick.y() == 0 || selectedClick.y() == 5) && (nextClick.y() == 0 || nextClick.y() == 5)) {
                         board.swapPieces(selectedClick, nextClick);
                     }
                     selectedClick = null;
                     nextClick = null;
                     board.setAllCellsUnselectedAndNonstart();
                     mainFrame.table.repaint();
+                } else {
+                    selectedClick = new Position(x, y);
+                    nextClick = null;
+                    board.setAllCellsUnselectedAndNonstart();
+                    mainFrame.table.repaint();
+                    board.exploreSwappables(selectedClick);
+                    mainFrame.table.repaint();
                 }
                 break;
             case PLAYING:
-                // Itt a játék közben van
-                int activeRow = board.getActiveRow(player);
-                if((selectedClick != null && selectedClick.equals(new Position(x, y))) || board.getPieceAt(new Position(x, y)).getState() == CellState.EMPTY) {
-                    selectedClick = null;
-                    nextClick = null;
-                    board.setAllCellsUnselectedAndNonstart(); // Minden kiválasztás törlése
-                    mainFrame.table.repaint();
-                } else if (y == activeRow && (selectedClick == null || nextClick == null && !board.isPositionJumpable(new Position(x, y)))) {
-                    selectedClick = new Position(x, y);
-                    board.setAllCellsUnselectedAndNonstart(); // Minden kiválasztás törlése
-                    mainFrame.table.repaint();
-                    board.exploreMoves(selectedClick, true); // Léphető pozíciók kiválasztása
-                    board.setStartPosition(selectedClick); // Kezdő pozíció beállítása
-                } else if (selectedClick != null && nextClick == null && board.isPositionJumpable(new Position(x, y))) {
-                    nextClick = new Position(x, y);
-                    if (board.tryToMovePiece(selectedClick, nextClick)) {
-                        moveHistory.push(new Pair<>(selectedClick, nextClick));
-                        selectedClick = null;
-                        nextClick = null;
-                        board.setAllCellsUnselectedAndNonstart(); // Minden kiválasztás törlése
-                        mainFrame.table.repaint();
-                        player = !player; // játékosváltás
-                        mainFrame.updatePlayerLabel(getPlayer());
-                    } else {
-                        board.setAllCellsUnselectedAndNonstart(); // Minden kiválasztás törlése
-                        mainFrame.table.repaint();
-                        board.setStartPosition(selectedClick); // Kezdő pozíció beállítása
-                        board.exploreMoves(nextClick, true);
-                        lastJumpFromHere = nextClick;
-                        nextClick = null;
-                    }
-                }
+                leftClickedInPlayingState(x, y);
                 break;
-        } //TODO: kilökés
+        }
+    }
+
+    public void leftClickedInPlayingState(int x, int y) {
+        int activeRow = board.getActiveRow(player);
+        if ((selectedClick != null && selectedClick.equals(new Position(x, y))) || board.getPieceAt(new Position(x, y)).getState() == CellState.EMPTY) {
+            selectedClick = null;
+            nextClick = null;
+            board.setAllCellsUnselectedAndNonstart(); // Clear all selections
+            mainFrame.table.repaint();
+        } else if (y == activeRow && (selectedClick == null || nextClick == null && !board.isPositionJumpable(new Position(x, y)))) {
+            selectedClick = new Position(x, y);
+            board.setAllCellsUnselectedAndNonstart(); // Clear all selections
+            mainFrame.table.repaint();
+            board.exploreMoves(selectedClick, true); // Select movable positions
+            board.setStartPosition(selectedClick); // Set start position
+        } else if (selectedClick != null && nextClick == null && board.isPositionJumpable(new Position(x, y))) {
+            nextClick = new Position(x, y);
+            if (board.tryToMovePiece(selectedClick, nextClick)) {
+                moveHistory.push(new Pair<>(selectedClick, nextClick));
+                selectedClick = null;
+                nextClick = null;
+                board.setAllCellsUnselectedAndNonstart(); // Clear all selections
+                mainFrame.table.repaint();
+                player = !player; // Switch players
+                mainFrame.updatePlayerLabel(getPlayer());
+            } else {
+                board.setAllCellsUnselectedAndNonstart(); // Minden kiválasztás törlése
+                mainFrame.table.repaint();
+                board.setStartPosition(selectedClick); // Kezdő pozíció beállítása
+                board.exploreMoves(nextClick, true);
+                lastJumpFromHere = nextClick;
+                nextClick = null;
+            }
+        }
+    }
+
+    public void rightClicked(int x, int y) {
+        if (selectedClick != null && nextClick == null && board.isPositionJumpable(new Position(x, y))) {
+            nextClick = new Position(x, y);
+            board.setAllCellsUnselectedAndNonstart(); // Clear all selections
+            board.knockOutPiece(selectedClick, nextClick, player);
+            moveHistory.push(new Pair<>(selectedClick, nextClick));
+            nextClick = null;
+            mainFrame.table.repaint();
+        }
     }
 
     public Board getBoard() {

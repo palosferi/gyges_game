@@ -243,4 +243,27 @@ public class Board extends DefaultTableModel {
 
         }
     }
+
+    public void knockOutPiece(Position selectedClick, Position nextClick, boolean player) {
+        Piece temp = grid[nextClick.x()][nextClick.y()];
+        grid[nextClick.x()][nextClick.y()] = grid[selectedClick.x()][selectedClick.y()];
+        grid[selectedClick.x()][selectedClick.y()] = temp;
+        if(player) {
+            for(int y = getRowCount()-1; y >= getActiveRow(!player); y--) {
+                for (int x = 0; x < getColumnCount(); x++) {
+                    if(grid[x][y].getState().getHeight() == 0) {
+                        grid[x][y].setSelected(true);
+                    }
+                }
+            }
+        } else {
+            for(int y = getActiveRow(player); y < getRowCount(); y++) {
+                for(int x = 0; x < getColumnCount(); x++) {
+                    if(grid[x][y].getState().getHeight() == 0) {
+                        grid[x][y].setSelected(true);
+                    }
+                }
+            }
+        }
+    }
 }

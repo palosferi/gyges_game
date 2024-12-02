@@ -338,11 +338,13 @@ public class MainFrame extends JFrame {
                 actionButton.setText("Start Game");
                 game.setState(SETUP);
                 game.getBoard().init(); // Init the game
+                appendMessage("Set up your pieces! You can change the order of the pieces in the row closest to you by clicking them.");
                 table.repaint();
                 break;
             case SETUP:
                 table.repaint();
                 actionButton.setText("Undo move");
+                appendMessage("The game has started! Player 1 (bottom) is the first to move.");
                 game.run(); // Run the game
                 break;
             case PLAYING:
