@@ -18,7 +18,7 @@ public class MainFrame extends JFrame {
     JPanel controlPanel;
     JTextArea messageArea;
     JButton themeButton;
-    public boolean isDarkTheme = false;
+    private boolean isDarkTheme = false;
 
     public MainFrame() {
         // Set preferred size for the entire window
@@ -233,11 +233,11 @@ public class MainFrame extends JFrame {
     private void updateComponentBackgrounds(Component component, Color backgroundColor, Color foregroundColor) {
         component.setBackground(backgroundColor);
         if (component instanceof JComponent) {
-            ((JComponent) component).setForeground(foregroundColor);
+            (component).setForeground(foregroundColor);
         }
 
-        if (component instanceof Container) {
-            for (Component child : ((Container) component).getComponents()) {
+        if (component instanceof Container container) {
+            for (Component child : container.getComponents()) {
                 updateComponentBackgrounds(child, backgroundColor, foregroundColor);
             }
         }
@@ -254,7 +254,7 @@ public class MainFrame extends JFrame {
 
     private void showRulesDialog() {
         JDialog rulesDialog = new JDialog(this, "Rules of Gyges", true);
-        rulesDialog.setSize(400, 300);
+        rulesDialog.setSize(580, 500);
         rulesDialog.setLocationRelativeTo(this);
 
         // Create a text area with the rules
@@ -262,74 +262,115 @@ public class MainFrame extends JFrame {
         rulesText.setText("""
         Rules of Gyges:
         
-        1. The board is a 6x6 grid.
-        2. Each player takes turns moving pieces.
-        3. Pieces move based on their height (1, 2, or 3 steps).
-        4. A piece can jump over other pieces.
-        5. The goal is to move a piece to the opponent's starting row.
-        
-        """); //TODO: detailed rules
-        rulesText.setEditable(false);
-        rulesText.setLineWrap(true);
-        rulesText.setWrapStyleWord(true);
-
-        // Apply the current theme
-        Color backgroundColor = isDarkTheme ? new Color(18, 18, 18) : new Color(245, 245, 245);
-        Color textColor = isDarkTheme ? new Color(255, 255, 255) : new Color(0, 0, 0);
-        rulesText.setBackground(backgroundColor);
-        rulesText.setForeground(textColor);
-
-        // Add the text area to a scroll pane
-        JScrollPane scrollPane = new JScrollPane(rulesText);
-        rulesDialog.add(scrollPane);
-
-        // Add a "Close" button
-        JButton closeButton = new JButton("Close");
-        closeButton.addActionListener(e -> rulesDialog.dispose());
-        closeButton.setBackground(backgroundColor);
-        closeButton.setForeground(textColor);
-        rulesDialog.add(closeButton, BorderLayout.SOUTH);
-
-        rulesDialog.setVisible(true);
+        1. Components
+         . A 6×6 board
+         . 12 pieces, with 4 of each height (1, 2, and 3)
+        2. Setup
+         . Each player starts with 2 pieces of each height
+         . Players move their pieces in the row closest to them
+        3. Gameplay
+         . Players alternate turns
+         . On each turn, a player may move one piece from the closest non-empty row to them (the "active row")
+         . If no pieces in the active row can move, pieces in the next row forward become eligible for movement
+         . Pieces move orthogonally (horizontally or vertically) a number of spaces equal to their height
+         . Direction changes are allowed within a single move, but a piece may not
+           cross the same line between two spaces more than once during the same move
+        4. Special Rules for Movement
+         . A turn ends when a piece stops on an empty space
+         . If a piece's movement ends on an occupied space:
+           - Bounce: Continue movement based on the height of the piece you land on. This
+             can chain into additional bounces if further occupied spaces are encountered.
+           - Replacement: Instead of bouncing, the player may choose to remove the piece they land
+             on and place it anywhere on the board, except in the opponent’s active row or behind it
+        5. Winning
+         . A player wins by ending their movement exactly on the target cell on the opponent’s side of the board
+        6. Additional Notes
+         . Pieces cannot jump over other pieces
+        """);
+        setDialogButtons(rulesDialog, rulesText);
     }
 
     private void showUserGuideDialog() {
         JDialog guideDialog = new JDialog(this, "User Guide", true);
-        guideDialog.setSize(400, 300);
+        guideDialog.setSize(580, 500);
         guideDialog.setLocationRelativeTo(this);
 
         JTextArea guideText = new JTextArea();
         guideText.setText("""
-                User Guide:
-                
-                1. **New Game Button**: Starts a new game. The game is initialized, and you can begin playing.
-                2. **Save Game Button**: Saves the current game state, so you can continue later.
-                3. **Load Game Button**: Loads a previously saved game state.
-                4. **Player Info**: Displays the current player (Top or Bottom).
-                5. **Game Board**: Click on the cells to make your move. The goal is to reach the opponent's starting row.
-                6. **Special Cells**: Located at the top and bottom of the board. Clicking them places a piece in the respective row.
-                """);
-        //TODO: more detailed text to explain how the buttons work
-        guideText.setEditable(false);
-        guideText.setLineWrap(true);
-        guideText.setWrapStyleWord(true);
+        User Guide:
+        
+        1. Game Interface Components
+          . Game Board
+            - 6×6 Grid: The main board for gameplay. Players interact with the grid to move pieces
+            - Top Special Cell (North): Click to place a piece in the top row
+            - Bottom Special Cell (South): Click to place a piece in the bottom row
+            - Pieces can be selected and moved based on the game rules
+            - Clicking a piece highlights its potential moves
+          . Control Panel
+            - This panel provides gameplay options and displays key information
+         2. Control Panel Buttons
+          . New Game
+            - Starts a new game session
+            - Resets the board and initializes player turns
+          . Save Game
+            - Saves the current game state to continue later
+          . Load Game
+            - Loads a previously saved game state
+          . Exit
+            - Closes the application
+          . Theme Toggle
+            - Switch between Dark Mode and Light Mode
+         3. Additional Features
+          . Player Info
+            - Displays the current player's turn (Bottom or Top)
+          . Message Area
+            - Displays game updates, player actions, and instructions
+         4. Gameplay Workflow
+          . Setup Phase
+            - After starting a new game, arrange your pieces in the row closest to you
+            - You can rearrange pieces by clicking them
+          . Game Phase
+            - Players take turns moving their pieces
+            - Special moves, like "bounce" or "replacement," are triggered when landing on occupied spaces
+          . Endgame
+            - The game ends when a player successfully moves a piece to the special cell close to the opponent
+         5. Special Instructions
+            - Special Cells: The special cells do not light up even when it is
+              possible for the player to press, so pay attention not to miss winning moves
+            - Undo Move: During gameplay, click Undo (if available) to revert the last move
+         6. Customizing Your Experience
+          . Dark Mode and Light Mode
+            - Toggle between themes to match your preference
+         7. Pro Tips
+          . Plan Ahead: Use the height of pieces strategically to maximize movement potential
+          . Utilize Special Moves: Consider using the replacement move to reposition pieces advantageously
+          . Save Often: Use the save function to protect your progress, especially during long matches
+        """);
+        setDialogButtons(guideDialog, guideText);
+
+    }
+
+    private void setDialogButtons(JDialog dialog, JTextArea messageArea) {
+        messageArea.setEditable(false);
+        messageArea.setLineWrap(true);
+        messageArea.setWrapStyleWord(true);
 
         // Apply the current theme
         Color backgroundColor = isDarkTheme ? new Color(18, 18, 18) : new Color(245, 245, 245);
         Color textColor = isDarkTheme ? new Color(255, 255, 255) : new Color(0, 0, 0);
-        guideText.setBackground(backgroundColor);
-        guideText.setForeground(textColor);
+        messageArea.setBackground(backgroundColor);
+        messageArea.setForeground(textColor);
 
-        JScrollPane scrollPane = new JScrollPane(guideText);
-        guideDialog.add(scrollPane);
+        JScrollPane scrollPane = new JScrollPane(messageArea);
+        dialog.add(scrollPane);
 
         JButton closeButton = new JButton("Close");
-        closeButton.addActionListener(e -> guideDialog.dispose());
+        closeButton.addActionListener(e -> dialog.dispose());
         closeButton.setBackground(backgroundColor);
         closeButton.setForeground(textColor);
-        guideDialog.add(closeButton, BorderLayout.SOUTH);
+        dialog.add(closeButton, BorderLayout.SOUTH);
 
-        guideDialog.setVisible(true);
+        dialog.setVisible(true);
     }
 
     public void actionButtonClicked() {
@@ -362,4 +403,12 @@ public class MainFrame extends JFrame {
         playerLabel.setText(playerText);
     }
 
-} //TODO: tests
+    public boolean getIsDarkTheme() {
+        return isDarkTheme;
+    }
+
+    public void setIsDarkTheme(boolean isDarkTheme) {
+        this.isDarkTheme = isDarkTheme;
+    }
+
+}

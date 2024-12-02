@@ -44,6 +44,7 @@ public class Piece {
                 case THREE:
                     value = CellState.SELECTED_THREE;
                     break;
+                default: break;
             }
         } else {
             switch (value) {
@@ -59,6 +60,7 @@ public class Piece {
                 case SELECTED_THREE, START_THREE:
                     value = CellState.THREE;
                     break;
+                default: break;
             }
         }
     }
@@ -78,6 +80,7 @@ public class Piece {
                 case THREE:
                     value = CellState.START_THREE;
                     break;
+                default: break;
             }
         } else {
             switch (value) {
@@ -93,6 +96,7 @@ public class Piece {
                 case START_THREE:
                     value = CellState.THREE;
                     break;
+                default: break;
             }
         }
     }

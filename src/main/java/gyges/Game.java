@@ -9,7 +9,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.Stack;
+import java.util.Deque;
 
 import static gyges.GameState.*;
 
@@ -19,14 +19,14 @@ public class Game {
     private boolean player = true; // Igaz: Alsó játékos van soron, Hamis: Felső játékos van soron
     private Position selectedClick; // Első klikk
     private Position nextClick; // Második kattintás
-    private Position lastJumpFromHere = selectedClick;
+    private Position lastJumpFromHere = null;
     private GameState state;
-    private static final String defaultFileExtension = ".json";
-    private final Stack<Pair<Position, Position>> moveHistory = new Stack<>();
+    private static final String DEFAULT_FILE_EXTENSION = ".json";
+    private final Deque<Pair<Position, Position>> moveHistory = new LinkedList<>();
 
     public Game(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
-        board = new Board(mainFrame.isDarkTheme);
+        board = new Board(mainFrame.getIsDarkTheme());
         state = IDLE;
         selectedClick = null;
         nextClick = null;
@@ -42,21 +42,21 @@ public class Game {
 
     public void topCellClicked() {
         if(state == PLAYING && player && selectedClick != null && nextClick == null) {
-            Piece piece = board.getPieceAt(selectedClick.x(), selectedClick.y());
-            Piece lastJumpPiece = board.getPieceAt(lastJumpFromHere.x(), lastJumpFromHere.y());
-            if(piece.isStart() && board.findIfWins(lastJumpFromHere, lastJumpPiece.getState().getHeight()-1, player, new LinkedList<>(), new Position(0, 0))) {
-                gameOver();
-            }
+            specialCellClicked();
         }
     }
 
     public void bottomCellClicked() {
         if(state == PLAYING && !player && selectedClick != null && nextClick == null) {
-            Piece piece = board.getPieceAt(selectedClick.x(), selectedClick.y());
-            Piece lastJumpPiece = board.getPieceAt(lastJumpFromHere.x(), lastJumpFromHere.y());
-            if(piece.isStart() && board.findIfWins(lastJumpFromHere, lastJumpPiece.getState().getHeight()-1, player, new LinkedList<>(), new Position(0, 0))) {
-                gameOver();
-            }
+            specialCellClicked();
+        }
+    }
+
+    private void specialCellClicked() {
+        Piece piece = board.getPieceAt(selectedClick.x(), selectedClick.y());
+        Piece lastJumpPiece = board.getPieceAt(lastJumpFromHere.x(), lastJumpFromHere.y());
+        if(piece.isStart() && board.findIfWins(lastJumpFromHere, lastJumpPiece.getState().getHeight()-1, player, new LinkedList<>(), new Position(0, 0))) {
+            gameOver();
         }
     }
 
@@ -175,8 +175,8 @@ public class Game {
             File selectedFile = fileChooser.getSelectedFile();
 
             // Append .json if not already present
-            if (!selectedFile.getName().endsWith(defaultFileExtension)) {
-                selectedFile = new File(selectedFile.getAbsolutePath() + defaultFileExtension);
+            if (!selectedFile.getName().endsWith(DEFAULT_FILE_EXTENSION)) {
+                selectedFile = new File(selectedFile.getAbsolutePath() + DEFAULT_FILE_EXTENSION);
             }
 
             try {
@@ -211,7 +211,7 @@ public class Game {
             File selectedFile = fileChooser.getSelectedFile();
 
             // Ensure the selected file is a JSON file
-            if (selectedFile.getName().endsWith(defaultFileExtension)) {
+            if (selectedFile.getName().endsWith(DEFAULT_FILE_EXTENSION)) {
                 try {
                     Gson gson = new Gson();
                     FileReader fileReader = new FileReader(selectedFile);
@@ -219,12 +219,12 @@ public class Game {
                     fileReader.close();
 
                     // Apply the loaded state
-                    board.setBoardState(gameStateData.getBoardState());
-                    player = gameStateData.isCurrentPlayer();
+                    board.setBoardState(gameStateData.boardState());
+                    player = gameStateData.currentPlayer();
                     moveHistory.clear();
-                    moveHistory.addAll(gameStateData.getMoveHistory());
+                    moveHistory.addAll(gameStateData.moveHistory());
                     board.isDarkMode = gameStateData.isDarkMode();
-                    mainFrame.isDarkTheme = !board.isDarkMode;
+                    mainFrame.setIsDarkTheme(!board.isDarkMode);
                     mainFrame.toggleTheme(mainFrame.themeButton);
                     mainFrame.updatePlayerLabel(getPlayer());
                     state = PLAYING;
@@ -249,8 +249,8 @@ public class Game {
     public void undoMove() {
         if (!moveHistory.isEmpty()) {
             Pair<Position, Position> lastMove = moveHistory.pop();
-            Position source = lastMove.getKey();
-            Position destination = lastMove.getValue();
+            Position source = lastMove.key();
+            Position destination = lastMove.value();
 
             // Undo the move on the board
             board.swapPieces(destination, source);

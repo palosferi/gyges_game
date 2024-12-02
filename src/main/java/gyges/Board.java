@@ -104,19 +104,28 @@ public class Board extends DefaultTableModel {
 
     public int getActiveRow(boolean player) {
         if (player) {
-            for(int y = getRowCount()-1; y > 0; y--) {
-                for(int x = 0; x < getColumnCount(); x++) {
-                    if(exploreMoves(new Position(x, y), false)) {
-                        return y;
-                    }
+            return getActiveRowPlayer1();
+        } else {
+            return getActiveRowPlayer2();
+        }
+    }
+
+    private int getActiveRowPlayer1() {
+        for(int y = getRowCount()-1; y > 0; y--) {
+            for(int x = 0; x < getColumnCount(); x++) {
+                if(exploreMoves(new Position(x, y), false)) {
+                    return y;
                 }
             }
-        } else {
-            for(int y = 0; y < getRowCount(); y++) {
-                for(int x = 0; x < getColumnCount(); x++) {
-                    if(exploreMoves(new Position(x, y), false)) {
-                        return y;
-                    }
+        }
+        return -1;
+    }
+
+    private int getActiveRowPlayer2() {
+        for(int y = 0; y < getRowCount(); y++) {
+            for(int x = 0; x < getColumnCount(); x++) {
+                if(exploreMoves(new Position(x, y), false)) {
+                    return y;
                 }
             }
         }
@@ -249,19 +258,25 @@ public class Board extends DefaultTableModel {
         grid[nextClick.x()][nextClick.y()] = grid[selectedClick.x()][selectedClick.y()];
         grid[selectedClick.x()][selectedClick.y()] = temp;
         if(player) {
-            for(int y = getRowCount()-1; y >= getActiveRow(!player); y--) {
-                for (int x = 0; x < getColumnCount(); x++) {
-                    if(grid[x][y].getState().getHeight() == 0) {
-                        grid[x][y].setSelected(true);
-                    }
+            knockOutPiecePlayer1();
+        } else {
+            knockOutPiecePlayer2();
+        }
+    }
+    private void knockOutPiecePlayer1() {
+        for(int y = getRowCount()-1; y > getActiveRow(false); y--) {
+            for (int x = 0; x < getColumnCount(); x++) {
+                if(grid[x][y].getState().getHeight() == 0) {
+                    grid[x][y].setSelected(true);
                 }
             }
-        } else {
-            for(int y = getActiveRow(player); y < getRowCount(); y++) {
-                for(int x = 0; x < getColumnCount(); x++) {
-                    if(grid[x][y].getState().getHeight() == 0) {
-                        grid[x][y].setSelected(true);
-                    }
+        }
+    }
+    private void knockOutPiecePlayer2() {
+        for(int y = getActiveRow(false) + 1; y < getRowCount(); y++) {
+            for(int x = 0; x < getColumnCount(); x++) {
+                if(grid[x][y].getState().getHeight() == 0) {
+                    grid[x][y].setSelected(true);
                 }
             }
         }
